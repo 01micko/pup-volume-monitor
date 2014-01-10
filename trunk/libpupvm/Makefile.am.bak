@@ -1,0 +1,34 @@
+lib_LTLIBRARIES = libpupvm.la
+libpupvm_la_CFLAGS = $(GIO_CFLAGS)  $(UDEV_CFLAGS) $(BLKID_CFLAGS) \
+		-I$(top_srcdir) -Wall
+libpupvm_la_LIBADD = $(LIBS) $(GIO_LIBS)
+libpupvm_la_SOURCES = pupvm-plugin.h common-includes.h\
+		utils.c utils.h \
+		core.c core.h \
+		socket.c socket.h \
+		transfer.c transfer.h \
+		protocol.c protocol.h \
+		conv.c conv.h \
+		pupvm-classes.c pupvm-classes.h \
+		pupvm-monitor.c pupvm-monitor.h \
+		pupvm-utils.h
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = pupvm.pc
+
+pupvmincludedir = $(includedir)/pupvm
+pupvminclude_HEADERS = pupvm-plugin.h \
+		utils.h \
+		core.h \
+		socket.h \
+		transfer.h \
+		protocol.h \
+		conv.h \
+		pupvm-utils.h \
+		pupvm-classes.h \
+		pupvm-monitor.h
+
+EXTRA_DIST = pupvm.pc.in
+
+AM_CPPFLAGS = \
+	$(GIO_CFLAGS)
