@@ -391,6 +391,8 @@ void pup_vm_monitor_get_mounts_unlocked(PupVMMonitor *self)
 	{
 		PupMntEntry entry;
 		entry.devnode = g_strdup(f_ent.mnt_fsname);
+		if (g_hash_table_contains(self->mounts, entry.devnode))
+			continue;
 		entry.mntpnt = g_strdup(f_ent.mnt_dir);
 		entry.flags = 0;
 		//Is the mountpoint a system volume?
