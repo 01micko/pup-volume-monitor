@@ -1,0 +1,1 @@
+This is pup-volume-monitor, a small and simple replacement of GVFS volume monitor for Puppy Linux and other single user linux distributions.
