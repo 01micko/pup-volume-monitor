@@ -57,7 +57,11 @@ typedef struct
 
 	PupDevice *dev;
 	GMountOperation *mount_operation;
+#if GLIB_CHECK_VERSION(2, 46, 0)
+	GTask *result;
+#else
 	GSimpleAsyncResult *result;
+#endif	
 	guint current_query;
 } PupGIOOperation;
 
@@ -261,7 +265,12 @@ void pup_client_monitor_start_operation(PupClientMonitor *monitor,
                                         const gchar *oper_name,
                                         const gchar *args,
                                         GMountOperation *mount_operation,
-                                        GSimpleAsyncResult *result)
+#if GLIB_CHECK_VERSION(2, 46, 0)
+										GTask *result)
+#else
+										GSimpleAsyncResult *result)
+#endif	
+
 {
 	//Create new operation
 	PupGIOOperation *operation = g_new0(PupGIOOperation, 1);
@@ -293,12 +302,12 @@ void pup_client_monitor_operation_return_cb (PupRemoteOperation *operation,
                                              const gchar *detail)
 {
 	PupGIOOperation *gio_operation = (PupGIOOperation *) operation;
-	
-	if (success)
-	{
-		g_simple_async_result_set_op_res_gboolean(gio_operation->result,
-		                                          TRUE);
-	}
+#if GLIB_CHECK_VERSION(2, 46, 0)
+	if (success) g_task_return_boolean(gio_operation->result, TRUE);
+	else g_task_return_new_error(gio_operation->result, G_IO_ERROR, error_code, "%s", detail);
+#else
+	//g_simple_async_* was deprecated in 2.46
+	if (success) g_simple_async_result_set_op_res_gboolean(gio_operation->result, TRUE);
 	else
 	{
 		g_simple_async_result_set_error(gio_operation->result,
@@ -307,6 +316,7 @@ void pup_client_monitor_operation_return_cb (PupRemoteOperation *operation,
 		                                "%s", detail);
 	}
 	g_simple_async_result_complete(gio_operation->result);
+#endif
 	pup_device_release(gio_operation->dev);
 }
 

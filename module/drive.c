@@ -213,11 +213,20 @@ void pup_client_drive_eject_w_operation(GDrive *drive,
 {
 	PupClientDevice *self = PUP_CLIENT_DEVICE(drive);
 	pup_client_lock(self);
+#if GLIB_CHECK_VERSION(2, 46, 0)
+	GTask *task;
+	task = g_task_new (self, cancellable, callback, user_data); // introduced in 2.36
+	g_task_set_source_tag(task, pup_client_volume_mount);
+#endif
 	pup_client_monitor_start_operation
-		(self->monitor, self->holder,
-		 "eject", NULL, mount_operation,
+		(self->monitor, self->holder, "eject", NULL, mount_operation,
+#if GLIB_CHECK_VERSION(2, 46, 0)
+		 task);
+#else
+		 // deprecated in 2.46
 		 g_simple_async_result_new(G_OBJECT(self), callback, user_data,
 		                           pup_client_volume_mount));
+#endif
 	pup_client_unlock(self);
 }
 

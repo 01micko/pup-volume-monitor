@@ -81,7 +81,11 @@ typedef struct
 
 	PupDevice *dev;
 	GMountOperation *mount_operation;
+#if GLIB_CHECK_VERSION(2, 46, 0)
+	GTask *result;
+#else
 	GSimpleAsyncResult *result;
+#endif	
 	guint current_query;
 } PupGIOOperation;
 
@@ -103,7 +107,12 @@ void pup_client_monitor_user_respond_cb(GMountOperation *mount_operation,GMountO
 void pup_client_monitor_ask_question_cb(PupRemoteOperation *operation,const gchar *question,const gchar **choices);
 void pup_client_monitor_ask_passwd_cb(PupRemoteOperation *operation,const gchar *msg,GAskPasswordFlags flags);
 void pup_client_monitor_operation_return_cb(PupRemoteOperation *operation,gboolean success,guint error_code,const gchar *detail);
-void pup_client_monitor_start_operation(PupClientMonitor *monitor,PupDevice *dev,const gchar *oper_name,const gchar *args,GMountOperation *mount_operation,GSimpleAsyncResult *result);
+void pup_client_monitor_start_operation(PupClientMonitor *monitor,PupDevice *dev,const gchar *oper_name,const gchar *args,GMountOperation *mount_operation,
+#if GLIB_CHECK_VERSION(2, 46, 0)
+	GTask *result);
+#else
+	GSimpleAsyncResult *result);
+#endif	
 void pup_client_monitor_svr_event_cb(PupConv *conv,PSDataParser *rcvd_data,gboolean is_new,PupClientMonitor *monitor,gpointer dummy);
 gboolean pup_client_monitor_connect(PupClientMonitor *self);
 void pup_client_monitor_disconnect_cb(PupSock *sock,PupClientMonitor *self);
