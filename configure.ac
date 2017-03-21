@@ -12,6 +12,7 @@ AM_MAINTAINER_MODE
 LT_INIT
 
 # Checks for programs.
+AM_PROG_AR([ar])
 AC_PROG_CC
 AC_SEARCH_LIBS([strerror],[cposix])
 
