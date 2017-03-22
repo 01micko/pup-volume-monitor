@@ -85,8 +85,10 @@ void pup_volume_monitor_finalize(GObject *instance)
 {
 	PupVolumeMonitor *self = PUP_VOLUME_MONITOR(instance);
 
-	if (self->reconnect_source_tag)
+	if (self->reconnect_source_tag > 0) {
 		g_source_remove(self->reconnect_source_tag);
+		self->reconnect_source_tag = 0;
+	}
 
 	if (self->monitor)
 		pup_vm_monitor_destroy(PUP_VM_MONITOR(self->monitor));
@@ -117,7 +119,7 @@ gboolean pup_volume_monitor_attempt_connect(PupVolumeMonitor *self)
 	else
 	{
 		self->monitor = monitor;
-		if (self->reconnect_source_tag)
+		if (self->reconnect_source_tag > 0)
 		{
 			g_source_remove(self->reconnect_source_tag);
 			self->reconnect_source_tag = 0;

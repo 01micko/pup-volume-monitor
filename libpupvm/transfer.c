@@ -352,7 +352,10 @@ void pup_sock_output_callback(PupSock *sock)
 
 void pup_sock_broken_pipe_handler(PupSock *sock)
 {
-	g_source_remove(sock->event_source);
+	if (sock->event_source > 0) {
+		g_source_remove(sock->event_source);
+		sock->event_source = 0;
+	}
 	sock->props &= ~PUPSOCK_IS_CONNECTED;
 
 	g_signal_emit(sock, PUP_SOCK_GET_CLASS(sock)->hup_signal_id, 0);

@@ -331,7 +331,10 @@ void pup_sock_finalize(GObject *instance)
 	}
 
 	//Remove from main loop
-	if (sock->event_source) g_source_remove(sock->event_source);
+	if (sock->event_source > 0) {
+		g_source_remove(sock->event_source);
+		sock->event_source = 0;
+	}
 
 	//Destroy buffers
 	for G_LIST_ITER(sock->read_data->head, iter)
