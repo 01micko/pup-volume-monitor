@@ -407,8 +407,12 @@ void pup_vm_monitor_get_mounts_unlocked(PupVMMonitor *self)
 	{
 		PupMntEntry entry;
 		entry.devnode = g_strdup(f_ent.mnt_fsname);
-		if (g_hash_table_contains(self->mounts, entry.devnode))
+#if GLIB_CHECK_VERSION(2, 32, 0)
+		if (g_hash_table_contains(self->mounts, f_ent.mnt_fsname))
 			continue;
+#else
+		//TODO: fallback method for glib < 2.32 ...
+#endif
 		entry.mntpnt = g_strdup(f_ent.mnt_dir);
 		entry.flags = 0;
 		//Is the mountpoint a system volume?
