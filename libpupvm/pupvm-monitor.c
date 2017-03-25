@@ -400,20 +400,29 @@ void pup_vm_monitor_get_mounts_unlocked(PupVMMonitor *self)
 
 	//First remove all existing entries
 	g_hash_table_remove_all(self->mounts);
+	//g_debug("pupvm-monitorc.c - pup_vm_monitor_get_mounts_unlocked()");
 
 	//Now fill data
 	mtabfile = setmntent(self->mtab_file, "r");
 	while (getmntent_r(mtabfile, &f_ent, buf, 1024))
 	{
 		PupMntEntry entry;
-		entry.devnode = g_strdup(f_ent.mnt_fsname);
+		if ((strcmp(f_ent.mnt_fsname,"tmpfs") == 0) ||
+			(strcmp(f_ent.mnt_fsname,"unionfs") == 0) ||
+			(strcmp(f_ent.mnt_fsname,"tmpfs") == 0) ||
+			(strcmp(f_ent.mnt_fsname,"devtmpfs") == 0) ||
+			(strcmp(f_ent.mnt_fsname,"none") == 0) ||
+			(strcmp(f_ent.mnt_fsname,"shmfs") == 0))
+			continue;
 #if GLIB_CHECK_VERSION(2, 32, 0)
 		if (g_hash_table_contains(self->mounts, f_ent.mnt_fsname))
 			continue;
 #else
 		//TODO: fallback method for glib < 2.32 ...
 #endif
+		entry.devnode = g_strdup(f_ent.mnt_fsname);
 		entry.mntpnt = g_strdup(f_ent.mnt_dir);
+		//g_debug("Entry: %s - %s", entry.devnode, entry.mntpnt);
 		entry.flags = 0;
 		//Is the mountpoint a system volume?
 		if (! entry.mntpnt)
