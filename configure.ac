@@ -9,10 +9,10 @@ AM_INIT_AUTOMAKE([-Wall foreign silent-rules])
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 AC_CONFIG_MACRO_DIR([m4])
 AM_MAINTAINER_MODE
+AM_PROG_AR([ar])
 LT_INIT
 
 # Checks for programs.
-AM_PROG_AR([ar])
 AC_PROG_CC
 AC_SEARCH_LIBS([strerror],[cposix])
 
