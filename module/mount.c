@@ -1,4 +1,3 @@
-//mount.c or mount.h
 //GMount class implementation: PupMount
 
 #ifndef PUP_VM_H_INSIDE
@@ -197,10 +196,14 @@ void pup_mount_umount_w_operation(GMount *mount, GMountUnmountFlags flags,
 	PupClientDevice *dev = PUP_CLIENT_DEVICE(self->holder);
 	pup_client_lock(dev);
 	pup_client_monitor_start_operation
-		(dev->monitor, dev->holder,
-		 "umount", NULL, mount_operation,
-		 g_simple_async_result_new(G_OBJECT(self), callback, user_data,
-		                           pup_mount_umount));
+		(dev->monitor, dev->holder, "umount", NULL, mount_operation,
+#if GLIB_CHECK_VERSION(2, 46, 0)
+		 G_ASYNC_RESULT(g_task_new(self, cancellable, callback, user_data)), pup_mount_umount); // introduced in 2.36
+#else
+		 // deprecated in 2.46
+		 G_ASYNC_RESULT(g_simple_async_result_new(G_OBJECT(self), callback, user_data,
+		                           pup_mount_umount)), NULL);
+#endif
 	pup_client_unlock(dev);
 }
 
@@ -222,10 +225,14 @@ void pup_mount_eject_w_operation(GMount *mount, GMountUnmountFlags flags,
 	PupClientDevice *dev = PUP_CLIENT_DEVICE(self->holder);
 	pup_client_lock(dev);
 	pup_client_monitor_start_operation
-		(dev->monitor, dev->holder,
-		 "eject", NULL, mount_operation,
-		 g_simple_async_result_new(G_OBJECT(self), callback, user_data,
-		                           pup_mount_umount));
+		(dev->monitor, dev->holder, "eject", NULL, mount_operation,
+#if GLIB_CHECK_VERSION(2, 46, 0)
+		 G_ASYNC_RESULT(g_task_new(self, cancellable, callback, user_data)), pup_mount_umount); // introduced in 2.36
+#else
+		 // deprecated in 2.46
+		 G_ASYNC_RESULT(g_simple_async_result_new(G_OBJECT(self), callback, user_data,
+		                           pup_mount_umount)), NULL);
+#endif
 	pup_client_unlock(dev);
 }
 

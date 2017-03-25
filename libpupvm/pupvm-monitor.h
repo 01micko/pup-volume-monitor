@@ -28,7 +28,12 @@ struct _PupVMMonitor
 	GHashTable *mounts;
 	gchar *mtab_file;
 
+#if GLIB_CHECK_VERSION(2, 32, 0)
+	GRecMutex lock;
+#else
 	GStaticRecMutex lock;
+#endif
+
 };
 
 typedef struct 

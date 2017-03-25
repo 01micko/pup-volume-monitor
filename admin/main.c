@@ -297,7 +297,9 @@ int main(int argc, char *argv[])
 	gchar **operation_args = NULL;
 	gchar *dev_address = NULL;
 
+#if !GLIB_CHECK_VERSION(2, 36, 0) //g_type_init() was deprecated in 2.36
 	g_type_init();
+#endif
 
 	GOptionEntry arglist[] =
 	{

@@ -1,0 +1,21 @@
+#!/bin/sh
+
+#Check whether the daemon is already running
+if pup-volume-monitor-admin --list-all &> /dev/null; then
+	echo "ERROR: pup-volume-monitor daemon is already running."
+	exit 2
+fi
+
+case $1 in
+	-d|-debug)
+		export G_MESSAGES_DEBUG=all
+		while true; do
+			pup-volume-monitor 2>&1 > /tmp/pup-volume-monitor.log
+			sleep 5
+		done 
+		;;
+	*)
+		exec pup-volume-monitor
+		;;
+esac
+

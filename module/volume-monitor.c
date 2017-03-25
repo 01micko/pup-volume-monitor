@@ -85,8 +85,10 @@ void pup_volume_monitor_finalize(GObject *instance)
 {
 	PupVolumeMonitor *self = PUP_VOLUME_MONITOR(instance);
 
-	if (self->reconnect_source_tag)
+	if (self->reconnect_source_tag > 0) {
 		g_source_remove(self->reconnect_source_tag);
+		self->reconnect_source_tag = 0;
+	}
 
 	if (self->monitor)
 		pup_vm_monitor_destroy(PUP_VM_MONITOR(self->monitor));
@@ -117,7 +119,7 @@ gboolean pup_volume_monitor_attempt_connect(PupVolumeMonitor *self)
 	else
 	{
 		self->monitor = monitor;
-		if (self->reconnect_source_tag)
+		if (self->reconnect_source_tag > 0)
 		{
 			g_source_remove(self->reconnect_source_tag);
 			self->reconnect_source_tag = 0;
@@ -247,14 +249,18 @@ void pup_volume_monitor_raise_events_cb(PupClientMonitor *monitor,
 gboolean pup_volume_monitor_generic_finish(GObject *object, GAsyncResult *result,
                                            GError **error)
 {
+#if GLIB_CHECK_VERSION(2, 46, 0)
+	return (g_task_propagate_boolean(G_TASK(result), error));
+#else
+	// g_simple_async... was deprecated in 2.46
 	gboolean res = TRUE;
 	if (g_simple_async_result_propagate_error(G_SIMPLE_ASYNC_RESULT(result),
 	                                          error))
 	{
 		res = FALSE;
 	}
-
 	return res;
+#endif
 }
 
 gboolean pup_volume_monitor_is_supported()

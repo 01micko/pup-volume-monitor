@@ -2,13 +2,14 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.50])
-AC_INIT([pup-volume-monitor],[0.1.15],[BUG-REPORT-ADDRESS])
+AC_INIT([pup-volume-monitor],[0.1.16],[BUG-REPORT-ADDRESS])
 AC_CONFIG_SRCDIR([libpupvm/pupvm-plugin.h])
 AC_CONFIG_HEADERS([config.h])
-AM_INIT_AUTOMAKE([-Wall -Werror foreign silent-rules])
+AM_INIT_AUTOMAKE([-Wall foreign silent-rules])
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 AC_CONFIG_MACRO_DIR([m4])
 AM_MAINTAINER_MODE
+AM_PROG_AR([ar])
 LT_INIT
 
 # Checks for programs.

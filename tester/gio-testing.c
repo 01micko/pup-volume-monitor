@@ -23,7 +23,9 @@ int main(int argc, char *argv[])
 	GVolumeMonitor *monitor;
 	GList *volumes, *iter;
 	
+#if !GLIB_CHECK_VERSION(2, 36, 0) //g_type_init() was deprecated in 2.36
 	g_type_init();
+#endif
 	
 	monitor = g_volume_monitor_get();
 	

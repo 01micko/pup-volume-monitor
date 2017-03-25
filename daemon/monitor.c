@@ -259,13 +259,14 @@ gpointer pup_server_monitor_udev_thread(gpointer data)
 void pup_server_monitor_start_udev_thread(PupServerMonitor *self)
 {
 	GError *error = NULL;
-	self->udev_thread = g_thread_create(pup_server_monitor_udev_thread,
-	                                    self, FALSE, &error);
-
+#if GLIB_CHECK_VERSION(2, 32, 0)
+	self->udev_thread = g_thread_try_new("pvm_monitor", pup_server_monitor_udev_thread, self, &error);
+#else
+	self->udev_thread = g_thread_create(pup_server_monitor_udev_thread, self, FALSE, &error);
+#endif
 	if (error)
 	{
-		g_critical("Couldn't start udev monitor thread: %s",
-		           error->message);
+		g_critical("Couldn't start udev monitor thread: %s", error->message);
 	}
 }
 

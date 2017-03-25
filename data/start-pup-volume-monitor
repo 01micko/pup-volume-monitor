@@ -1,0 +1,22 @@
+#!/bin/sh
+
+#debug="-debug"
+
+case "$1" in
+	start)
+		pup-volume-monitor-starter ${debug} &
+		;;
+	stop)
+		killall pup-volume-monitor-starter
+		killall pup-volume-monitor
+		;;
+	restart)
+		killall pup-volume-monitor-starter
+		killall pup-volume-monitor
+		sleep 1
+		pup-volume-monitor-starter ${debug} &
+		;;
+	*)
+		echo "Usage: $0 {start|stop|restart}"
+		;;
+esac

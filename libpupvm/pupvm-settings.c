@@ -80,13 +80,13 @@ gboolean pup_load_cfg_file(GKeyFile *key_file, const gchar *module)
 				    || error->code == G_FILE_ERROR_NOENT)
 				{
 					//not so bad condition
-					g_message("Config file for plugin %s not found, "
-						      "it will use default settings", module);
+					g_message("Config file (%s) for plugin %s not found\n "
+						      "	it will use default settings", cfg_file_path, module);
 				}
 				else
 				{
 					//Error
-					g_critical("Couldn't read config file: %s", error->message);
+					g_critical("Couldn't read config file %s:\n	%s", cfg_file_path, error->message);
 				}
 				res = FALSE;
 			}
@@ -94,9 +94,12 @@ gboolean pup_load_cfg_file(GKeyFile *key_file, const gchar *module)
 		else
 		{
 			//Error
-			g_critical("Couldn't read config file: %s", error->message);
+			g_critical("Couldn't read config file %s:\n	%s", cfg_file_path, error->message);
 			res = FALSE;
 		}
+	}
+	else {
+		g_message("Loaded config file: '%s' (%s)", cfg_file_path, module);
 	}
 	g_free(cfg_file_path);
 	g_free(user_cfg_file);

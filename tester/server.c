@@ -96,7 +96,9 @@ int main(int argc, char *argv[])
 	GMainLoop *loop;
 	GError *error = NULL;
 	
+#if !GLIB_CHECK_VERSION(2, 36, 0) //g_type_init() was deprecated in 2.36
 	g_type_init();
+#endif
 	
 	//Create new socket
 	sock = pup_sock_new_local(&error);

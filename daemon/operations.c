@@ -187,8 +187,13 @@ void pup_device_destroy_dbg_info(gpointer dev)
 //Initialise VTable and others with these functions
 void pup_vm_impl_init()
 {
+
+#if !GLIB_CHECK_VERSION(2, 32, 0) //g_thread_init() was deprecated in 2.32
 	if (! g_thread_supported()) g_thread_init(NULL);
+#endif
+#if !GLIB_CHECK_VERSION(2, 36, 0) //g_type_init() was deprecated in 2.36
 	g_type_init();
+#endif
 	pup_func_call_queue_init();
 
 	pup_vm_is_client = FALSE;
