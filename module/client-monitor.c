@@ -264,7 +264,9 @@ void pup_client_monitor_start_operation(PupClientMonitor *monitor,
 										GAsyncResult *result,
 										gpointer async_func) //null if not using GTask
 {
+#if GLIB_CHECK_VERSION(2, 46, 0) //otherwise an implicit declaration occurs (in old glib versions)
 	if (async_func != NULL) g_task_set_source_tag(G_TASK(result), async_func);
+#endif
 	//Create new operation
 	PupGIOOperation *operation = g_new0(PupGIOOperation, 1);
 	//Fill in the structure
@@ -300,15 +302,15 @@ void pup_client_monitor_operation_return_cb (PupRemoteOperation *operation,
 	else g_task_return_new_error(G_TASK(gio_operation->result), G_IO_ERROR, error_code, "%s", detail);
 #else
 	//g_simple_async_* was deprecated in 2.46
-	if (success) g_simple_async_result_set_op_res_gboolean(gio_operation->result, TRUE);
+	if (success) g_simple_async_result_set_op_res_gboolean(G_SIMPLE_ASYNC_RESULT(gio_operation->result), TRUE);
 	else
 	{
-		g_simple_async_result_set_error(gio_operation->result,
+		g_simple_async_result_set_error(G_SIMPLE_ASYNC_RESULT(gio_operation->result),
 		                                G_IO_ERROR,
 		                                error_code,
 		                                "%s", detail);
 	}
-	g_simple_async_result_complete(gio_operation->result);
+	g_simple_async_result_complete(G_SIMPLE_ASYNC_RESULT(gio_operation->result));
 #endif
 	pup_device_release(gio_operation->dev);
 }
