@@ -409,17 +409,12 @@ void pup_vm_monitor_get_mounts_unlocked(PupVMMonitor *self)
 		PupMntEntry entry;
 		if ((strcmp(f_ent.mnt_fsname,"tmpfs") == 0) ||
 			(strcmp(f_ent.mnt_fsname,"unionfs") == 0) ||
-			(strcmp(f_ent.mnt_fsname,"tmpfs") == 0) ||
 			(strcmp(f_ent.mnt_fsname,"devtmpfs") == 0) ||
 			(strcmp(f_ent.mnt_fsname,"none") == 0) ||
 			(strcmp(f_ent.mnt_fsname,"shmfs") == 0))
 			continue;
-#if GLIB_CHECK_VERSION(2, 32, 0)
 		if (g_hash_table_contains(self->mounts, f_ent.mnt_fsname))
 			continue;
-#else
-		//TODO: fallback method for glib < 2.32 ...
-#endif
 		entry.devnode = g_strdup(f_ent.mnt_fsname);
 		entry.mntpnt = g_strdup(f_ent.mnt_dir);
 		//g_debug("Entry: %s - %s", entry.devnode, entry.mntpnt);
