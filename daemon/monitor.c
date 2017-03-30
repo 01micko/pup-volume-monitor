@@ -461,20 +461,20 @@ void pup_server_monitor_update_mnt_info(PupVMMonitor *monitor, gpointer dummy)
 }
 
 //Operation management
-void pup_server_monitor_start_operation(PupServerMonitor *self, guint catagory,
+void pup_server_monitor_start_operation(PupServerMonitor *self, guint category,
                                    const gchar *sysname, PupOperation *operation)
 {
 	pup_vm_monitor_lock(PUP_VM_MONITOR(self));	
 
-	PupDevice *dev = pup_vm_monitor_lookup(PUP_VM_MONITOR(self), catagory,
+	PupDevice *dev = pup_vm_monitor_lookup(PUP_VM_MONITOR(self), category,
 	                                       sysname, FALSE);
 	if (! dev)
 	{
-		g_warning("Sysname %s not found in catagory %d", sysname, catagory);
+		g_warning("Sysname %s not found in category %d", sysname, category);
 		pup_operation_return(operation, FALSE, G_IO_ERROR_INVALID_ARGUMENT,
 		                     "Invalid argument (requested device not found)"
-		                     ": sysname %s not found in catagory %d in server",
-		                     sysname, catagory);
+		                     ": sysname %s not found in category %d in server",
+		                     sysname, category);
 		pup_vm_monitor_unlock(PUP_VM_MONITOR(self));
 		return;
 	}

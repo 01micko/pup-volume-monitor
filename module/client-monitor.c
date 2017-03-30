@@ -228,7 +228,7 @@ void pup_client_monitor_svr_event_cb(PupConv *conv, PSDataParser *rcvd_data,
 	}
 	else
 	{
-		if (pup_vm_monitor_lookup(PUP_VM_MONITOR(monitor), event.header.catagory,
+		if (pup_vm_monitor_lookup(PUP_VM_MONITOR(monitor), event.header.category,
 			                      event.header.sysname, FALSE))
 		{
 			//Then update device, dev is automatically freed
@@ -270,7 +270,7 @@ void pup_client_monitor_start_operation(PupClientMonitor *monitor,
 	//Create new operation
 	PupGIOOperation *operation = g_new0(PupGIOOperation, 1);
 	//Fill in the structure
-	operation->parent.catagory = dev->catagory;
+	operation->parent.category = dev->category;
 	operation->parent.sysname = g_strdup(dev->sysname);
 	operation->parent.operation = g_strdup(oper_name);
 	operation->parent.args = g_strdup(args);

@@ -251,14 +251,14 @@ void run_operation(const gchar *oper_name, const gchar *dev_address,
 	gchar **strv = g_strsplit(dev_address, "/", 2);
 	g_assert(strv);
 	if (! strv[0]) g_error("Device address is empty.");
-	if (! strv[1]) g_error("You specified only catagory name.");
-	//Find catagory ID
-	guint catagory;
+	if (! strv[1]) g_error("You specified only category name.");
+	//Find category ID
+	guint category;
 	if (strcmp(strv[0], "drives") == 0)
-		catagory = PUP_CATAGORY_DRIVE;
+		category = PUP_CATEGORY_DRIVE;
 	else if (strcmp(strv[0], "volumes") == 0)
-		catagory = PUP_CATAGORY_VOLUME;
-	else g_error("Invalid catagory name \"%s\"", strv[0]);
+		category = PUP_CATEGORY_VOLUME;
+	else g_error("Invalid category name \"%s\"", strv[0]);
 	//Connect to the daemon
 	sock = pup_sock_new_local(NULL);
 	pup_sock_connect_local(sock, pup_get_svr_sock_path(), &error);
@@ -266,7 +266,7 @@ void run_operation(const gchar *oper_name, const gchar *dev_address,
 	cmgr = pup_conv_mgr_new(sock, drv_event_cb, NULL);
 	//Prepare request
 	operation = g_new0(ClientOperation, 1);
-	operation->parent.catagory = catagory;
+	operation->parent.category = category;
 	operation->parent.sysname = g_strdup(strv[1]);
 	operation->parent.operation = g_strdup(oper_name);
 	operation->parent.args = args ? g_strjoinv(" ", args) : NULL;

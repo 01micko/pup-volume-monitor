@@ -47,7 +47,7 @@ typedef struct
 #endif //PUP_VM_H_INSIDE
 
 /*Everything beyond this is automatically generated*/
-void pup_server_monitor_start_operation(PupServerMonitor *self,guint catagory,const gchar *sysname,PupOperation *operation);
+void pup_server_monitor_start_operation(PupServerMonitor *self,guint category,const gchar *sysname,PupOperation *operation);
 gboolean pup_server_monitor_mounts_check_func(gpointer data);
 void pup_drive_process_event(PupVMMonitor *monitor,struct udev_device *dev,gboolean process_change);
 void pup_server_monitor_start_udev_thread(PupServerMonitor *self);

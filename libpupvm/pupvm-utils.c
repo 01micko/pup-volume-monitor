@@ -60,7 +60,7 @@ typedef void (*PupAskQuestionCB)  (PupRemoteOperation *operation,
 
 struct _PupRemoteOperation
 {
-	guint catagory;
+	guint category;
 	gchar *sysname;
 	gchar *operation;
 	gchar *args;
@@ -402,7 +402,7 @@ void pup_remote_operation_run(PupRemoteOperation *operation, PupConvMgr *cmgr)
 	PSDataEncoder *encoder = ps_data_encoder_new();
 
 	pup_vm_encode_tag(encoder, PUP_TAG_OPERATION);
-	pup_vm_encode_tag(encoder, operation->catagory);
+	pup_vm_encode_tag(encoder, operation->category);
 	ps_data_encoder_add_str0(encoder, operation->sysname, 0);
 	ps_data_encoder_add_str0(encoder, operation->operation, 0);
 	ps_data_encoder_add_str0(encoder, operation->args, 0);
@@ -448,13 +448,13 @@ void pup_remote_operation_report_unhandled(PupConv *conv)
 }
 
 void pup_vm_extract_operation_details(PSDataParser *parser,
-                                      guint *catagory_return,
+                                      guint *category_return,
                                       gchar **sysname_return,
                                       gchar **operation_return,
                                       gchar **args_return,
                                       gboolean *error)
 {
-	*catagory_return = pup_vm_extract_tag(parser, error);
+	*category_return = pup_vm_extract_tag(parser, error);
 	*sysname_return = ps_data_parser_parse_str0(parser, error);
 	*operation_return = ps_data_parser_parse_str0(parser, error);
 	*args_return = ps_data_parser_parse_str0(parser, error);

@@ -85,7 +85,7 @@ void pup_vm_monitor_get_mounts_unlocked(PupVMMonitor *self);
 void pup_vm_monitor_stop_processing_uevent(PupVMMonitor *self);
 void pup_vm_monitor_raise_uevent(PupVMMonitor *self,struct udev_device *udev_dev);
 void pup_vm_monitor_copy_back_device(PupVMMonitor *self,PupDevice *dev,const gchar *detail);
-PupDevice *pup_vm_monitor_lookup(PupVMMonitor *self,guint catagory,const gchar *sysname,gboolean dup);
+PupDevice *pup_vm_monitor_lookup(PupVMMonitor *self,guint category,const gchar *sysname,gboolean dup);
 PupVolume *pup_vm_monitor_lookup_volume(PupVMMonitor *self,const gchar *sysname,gboolean dup);
 PupDrive *pup_vm_monitor_lookup_drive(PupVMMonitor *self,const gchar *sysname,gboolean dup);
 void pup_vm_monitor_change_device(PupVMMonitor *self,PupDevice *dev,const gchar *detail);

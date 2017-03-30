@@ -13,7 +13,7 @@ typedef struct
 {
 	GObject parent;
 
-	gint catagory;
+	gint category;
 	gchar *sysname;
 	
 	volatile gint hold_count;
@@ -25,8 +25,8 @@ typedef struct
 	///Parent instance 
 	GObject parent;
 	
-	///Catagory id, either PUP_CATAGORY_DRIVE or PUP_CATAGORY_VOLUME
-	gint catagory;
+	///Category id, either PUP_CATEGORY_DRIVE or PUP_CATEGORY_VOLUME
+	gint category;
 	///Unique name that identifies the object, preferably sysfs name
 	gchar *sysname;
 
@@ -83,16 +83,16 @@ typedef struct
 
 typedef struct 
 {
-	gint catagory;
+	gint category;
 	gchar *sysname;
 } PupDeviceHeader;
 
 typedef enum 
 {
-	PUP_CATAGORY_DRIVE = 1,
-	PUP_CATAGORY_VOLUME = 2,
-	PUP_CATAGORY_ICON = 3
-} PupCatagory;
+	PUP_CATEGORY_DRIVE = 1,
+	PUP_CATEGORY_VOLUME = 2,
+	PUP_CATEGORY_ICON = 3
+} PupCategory;
 
 //Warning: Changing these values implies protocol change
 #	define PUP_DEVICE_EVENT_NONE "none"

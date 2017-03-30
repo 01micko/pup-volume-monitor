@@ -134,10 +134,10 @@ void pup_client_disconnect_cb(PupSock *sock, PupClient *client)
 void pup_client_start_operation(PupClient *client, PSDataParser *parser,
                                 PupConv *conv)
 {
-	guint catagory;
+	guint category;
 	gchar *sysname, *type, *args;
 	gboolean error = FALSE;
-	pup_vm_extract_operation_details(parser, &catagory, &sysname, &type,
+	pup_vm_extract_operation_details(parser, &category, &sysname, &type,
 	                                 &args, &error);
 	if (error)
 	{
@@ -152,7 +152,7 @@ void pup_client_start_operation(PupClient *client, PSDataParser *parser,
 	operation->conv = conv;
 	operation->is_valid = TRUE;
 
-	pup_server_monitor_start_operation(client->server->monitor, catagory,
+	pup_server_monitor_start_operation(client->server->monitor, category,
 	                                   sysname, (PupOperation *) operation);
 
 	pup_conv_set_close_callback(conv, (PupConvCloseCB) pup_client_operation_invalidate,

@@ -60,7 +60,7 @@ typedef void (*PupAskQuestionCB)  (PupRemoteOperation *operation,
 
 struct _PupRemoteOperation
 {
-	guint catagory;
+	guint category;
 	gchar *sysname;
 	gchar *operation;
 	gchar *args;
@@ -115,7 +115,7 @@ void g_cclosure_user_marshal_VOID__POINTER_UINT_STRING(GClosure *closure,GValue 
 gboolean pup_drive_test_optical(struct udev_device *dev);
 gchar *pup_guess_devnode(struct udev_device *dev);
 const gchar *pup_guess_sysname(const gchar *devnode);
-void pup_vm_extract_operation_details(PSDataParser *parser,guint *catagory_return,gchar **sysname_return,gchar **operation_return,gchar **args_return,gboolean *error);
+void pup_vm_extract_operation_details(PSDataParser *parser,guint *category_return,gchar **sysname_return,gchar **operation_return,gchar **args_return,gboolean *error);
 void pup_remote_operation_abort(PupConv *conv);
 void pup_remote_operation_choice_reply(PupConv *conv,guint choice);
 void pup_remote_operation_passwd_reply(PupConv *conv,const gchar *username,const gchar *password,const gchar *domain);

@@ -306,16 +306,16 @@ PupVolume *pup_vm_monitor_lookup_volume(PupVMMonitor *self, const gchar *sysname
 	return result;
 }
 
-PupDevice *pup_vm_monitor_lookup(PupVMMonitor *self, guint catagory,
+PupDevice *pup_vm_monitor_lookup(PupVMMonitor *self, guint category,
                                  const gchar *sysname, gboolean dup)
 {
-	if (catagory == PUP_CATAGORY_DRIVE)
+	if (category == PUP_CATEGORY_DRIVE)
 		return PUP_DEVICE(pup_vm_monitor_lookup_drive(self, sysname, dup));
-	else if (catagory == PUP_CATAGORY_VOLUME)
+	else if (category == PUP_CATEGORY_VOLUME)
 		return PUP_DEVICE(pup_vm_monitor_lookup_volume(self, sysname, dup));
 	else
 	{
-		g_critical("%d is not a valid catagory id", catagory);
+		g_critical("%d is not a valid category id", category);
 		return NULL;
 	}
 }
