@@ -407,11 +407,11 @@ void pup_vm_monitor_get_mounts_unlocked(PupVMMonitor *self)
 	while (getmntent_r(mtabfile, &f_ent, buf, 1024))
 	{
 		PupMntEntry entry;
-		if ((strcmp(f_ent.mnt_fsname,"tmpfs") == 0) ||
-			(strcmp(f_ent.mnt_fsname,"unionfs") == 0) ||
-			(strcmp(f_ent.mnt_fsname,"devtmpfs") == 0) ||
-			(strcmp(f_ent.mnt_fsname,"none") == 0) ||
-			(strcmp(f_ent.mnt_fsname,"shmfs") == 0))
+		if ((g_strcmp0(f_ent.mnt_fsname,"tmpfs") == 0) ||
+			(g_strcmp0(f_ent.mnt_fsname,"unionfs") == 0) ||
+			(g_strcmp0(f_ent.mnt_fsname,"devtmpfs") == 0) ||
+			(g_strcmp0(f_ent.mnt_fsname,"none") == 0) ||
+			(g_strcmp0(f_ent.mnt_fsname,"shmfs") == 0))
 			continue;
 		if (g_hash_table_contains(self->mounts, f_ent.mnt_fsname))
 			continue;
