@@ -306,16 +306,16 @@ PupVolume *pup_vm_monitor_lookup_volume(PupVMMonitor *self, const gchar *sysname
 	return result;
 }
 
-PupDevice *pup_vm_monitor_lookup(PupVMMonitor *self, guint catagory,
+PupDevice *pup_vm_monitor_lookup(PupVMMonitor *self, guint category,
                                  const gchar *sysname, gboolean dup)
 {
-	if (catagory == PUP_CATAGORY_DRIVE)
+	if (category == PUP_CATEGORY_DRIVE)
 		return PUP_DEVICE(pup_vm_monitor_lookup_drive(self, sysname, dup));
-	else if (catagory == PUP_CATAGORY_VOLUME)
+	else if (category == PUP_CATEGORY_VOLUME)
 		return PUP_DEVICE(pup_vm_monitor_lookup_volume(self, sysname, dup));
 	else
 	{
-		g_critical("%d is not a valid catagory id", catagory);
+		g_critical("%d is not a valid category id", category);
 		return NULL;
 	}
 }
@@ -407,19 +407,14 @@ void pup_vm_monitor_get_mounts_unlocked(PupVMMonitor *self)
 	while (getmntent_r(mtabfile, &f_ent, buf, 1024))
 	{
 		PupMntEntry entry;
-		if ((strcmp(f_ent.mnt_fsname,"tmpfs") == 0) ||
-			(strcmp(f_ent.mnt_fsname,"unionfs") == 0) ||
-			(strcmp(f_ent.mnt_fsname,"tmpfs") == 0) ||
-			(strcmp(f_ent.mnt_fsname,"devtmpfs") == 0) ||
-			(strcmp(f_ent.mnt_fsname,"none") == 0) ||
-			(strcmp(f_ent.mnt_fsname,"shmfs") == 0))
+		if ((g_strcmp0(f_ent.mnt_fsname,"tmpfs") == 0) ||
+			(g_strcmp0(f_ent.mnt_fsname,"unionfs") == 0) ||
+			(g_strcmp0(f_ent.mnt_fsname,"devtmpfs") == 0) ||
+			(g_strcmp0(f_ent.mnt_fsname,"none") == 0) ||
+			(g_strcmp0(f_ent.mnt_fsname,"shmfs") == 0))
 			continue;
-#if GLIB_CHECK_VERSION(2, 32, 0)
 		if (g_hash_table_contains(self->mounts, f_ent.mnt_fsname))
 			continue;
-#else
-		//TODO: fallback method for glib < 2.32 ...
-#endif
 		entry.devnode = g_strdup(f_ent.mnt_fsname);
 		entry.mntpnt = g_strdup(f_ent.mnt_dir);
 		//g_debug("Entry: %s - %s", entry.devnode, entry.mntpnt);

@@ -82,7 +82,7 @@ typedef struct
 
 PupDevice *pup_overwrite_dev(PupVMMonitor *monitor, PupDevice *dev)
 {
-	PupDevice *orig_dev = pup_vm_monitor_lookup(monitor, dev->catagory,
+	PupDevice *orig_dev = pup_vm_monitor_lookup(monitor, dev->category,
 		                                        dev->sysname, FALSE);
 	if (orig_dev)
 	{

@@ -1,37 +1,6 @@
-//server.c or server.h
 //Connecting to clients, sharing information, handling operations
 
-#ifndef PUP_VM_H_INSIDE
-//server.c
 #include "common.h"
-#else
-//server.h
-
-typedef struct
-{
-	PupSock *sock;
-	GHashTable *clients;
-	PupServerMonitor *monitor;
-} PupServer;
-
-typedef struct
-{
-	PupServer *server;
-	PupConvMgr *cmgr;
-	gulong event_signal_handle;
-	PupConv *event_conv;
-} PupClient;
-
-typedef struct
-{
-	PupOperation parent;
-	PupConv *conv;
-	gboolean is_valid;
-} PupServerOperation;
-
-#endif //PUP_VM_H_INSIDE
-
-//FILE_HEADER_END
 
 //Check whether server is running
 gboolean pup_server_check_is_running()
@@ -134,10 +103,10 @@ void pup_client_disconnect_cb(PupSock *sock, PupClient *client)
 void pup_client_start_operation(PupClient *client, PSDataParser *parser,
                                 PupConv *conv)
 {
-	guint catagory;
+	guint category;
 	gchar *sysname, *type, *args;
 	gboolean error = FALSE;
-	pup_vm_extract_operation_details(parser, &catagory, &sysname, &type,
+	pup_vm_extract_operation_details(parser, &category, &sysname, &type,
 	                                 &args, &error);
 	if (error)
 	{
@@ -152,7 +121,7 @@ void pup_client_start_operation(PupClient *client, PSDataParser *parser,
 	operation->conv = conv;
 	operation->is_valid = TRUE;
 
-	pup_server_monitor_start_operation(client->server->monitor, catagory,
+	pup_server_monitor_start_operation(client->server->monitor, category,
 	                                   sysname, (PupOperation *) operation);
 
 	pup_conv_set_close_callback(conv, (PupConvCloseCB) pup_client_operation_invalidate,

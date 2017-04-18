@@ -1,6 +1,11 @@
 //pupvm-monitor.c or pupvm-monitor.h
 //The volume monitor, server side
 
+/* http://lists.geany.org/pipermail/github-comments/2016-January/002026.html */
+#if !GLIB_CHECK_VERSION(2, 32, 0)
+#define g_hash_table_contains(ht, key) g_hash_table_lookup_extended(ht, key, NULL, NULL)
+#endif
+
 #ifndef PUP_VM_H_INSIDE
 //pupvm-monitor.c
 #	include "common-includes.h"
@@ -85,7 +90,7 @@ void pup_vm_monitor_get_mounts_unlocked(PupVMMonitor *self);
 void pup_vm_monitor_stop_processing_uevent(PupVMMonitor *self);
 void pup_vm_monitor_raise_uevent(PupVMMonitor *self,struct udev_device *udev_dev);
 void pup_vm_monitor_copy_back_device(PupVMMonitor *self,PupDevice *dev,const gchar *detail);
-PupDevice *pup_vm_monitor_lookup(PupVMMonitor *self,guint catagory,const gchar *sysname,gboolean dup);
+PupDevice *pup_vm_monitor_lookup(PupVMMonitor *self,guint category,const gchar *sysname,gboolean dup);
 PupVolume *pup_vm_monitor_lookup_volume(PupVMMonitor *self,const gchar *sysname,gboolean dup);
 PupDrive *pup_vm_monitor_lookup_drive(PupVMMonitor *self,const gchar *sysname,gboolean dup);
 void pup_vm_monitor_change_device(PupVMMonitor *self,PupDevice *dev,const gchar *detail);

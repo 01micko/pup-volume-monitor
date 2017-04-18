@@ -1,15 +1,6 @@
-//drive-probes.c or drive-probes.h
 //Probing for drives and volumes
 
-#ifndef PUP_VM_H_INSIDE
-//drive-probes.c
 #include "common.h"
-#else
-//drive-probes.h
-
-#endif //PUP_VM_H_INSIDE
-
-//FILE_HEADER_END
 
 //Check whether udev device is a drive
 gboolean pup_drive_assert(struct udev_device *dev)

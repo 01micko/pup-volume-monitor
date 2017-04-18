@@ -13,7 +13,7 @@ typedef struct
 {
 	GObject parent;
 
-	gint catagory;
+	gint category;
 	gchar *sysname;
 	
 	volatile gint hold_count;
@@ -25,8 +25,8 @@ typedef struct
 	///Parent instance 
 	GObject parent;
 	
-	///Catagory id, either PUP_CATAGORY_DRIVE or PUP_CATAGORY_VOLUME
-	gint catagory;
+	///Category id, either PUP_CATEGORY_DRIVE or PUP_CATEGORY_VOLUME
+	gint category;
 	///Unique name that identifies the object, preferably sysfs name
 	gchar *sysname;
 
@@ -71,16 +71,16 @@ typedef struct
 
 typedef struct 
 {
-	gint catagory;
+	gint category;
 	gchar *sysname;
 } PupDeviceHeader;
 
 typedef enum 
 {
-	PUP_CATAGORY_DRIVE = 1,
-	PUP_CATAGORY_VOLUME = 2,
-	PUP_CATAGORY_ICON = 3
-} PupCatagory;
+	PUP_CATEGORY_DRIVE = 1,
+	PUP_CATEGORY_VOLUME = 2,
+	PUP_CATEGORY_ICON = 3
+} PupCategory;
 
 //Warning: Changing these values implies protocol change
 #	define PUP_DEVICE_EVENT_NONE "none"
@@ -312,7 +312,7 @@ void pup_device_finalize(GObject *instance)
 gboolean pup_device_parse_header(PupDeviceHeader *header, PSDataParser *parser)
 {
 	gboolean error = FALSE;
-	header->catagory = pup_vm_extract_tag(parser, &error);
+	header->category = pup_vm_extract_tag(parser, &error);
 	header->sysname = ps_data_parser_parse_str0(parser, &error);
 	g_return_val_if_fail(!error, FALSE);
 	return TRUE;
@@ -345,20 +345,20 @@ gboolean pup_device_update_from_parser(PupDevice *self, PSDataParser *parser)
 PupDevice *pup_device_new_from_header(PupDeviceHeader *header, PSDataParser *parser)
 {
 	GType type;
-	switch (header->catagory)
+	switch (header->category)
 	{
-		case PUP_CATAGORY_DRIVE:
+		case PUP_CATEGORY_DRIVE:
 			type = PUP_TYPE_DRIVE;
 			break;
-		case PUP_CATAGORY_VOLUME:
+		case PUP_CATEGORY_VOLUME:
 			type = PUP_TYPE_VOLUME;
 			break;
 		default:
-			g_critical("Unknown catagory (%d)", header->catagory);
+			g_critical("Unknown category (%d)", header->category);
 			return NULL;
 	}
 	PupDevice *self = PUP_DEVICE(g_object_new(type, NULL));
-	self->catagory = header->catagory;
+	self->category = header->category;
 	self->sysname = g_strdup(header->sysname);
 	g_return_val_if_fail(pup_device_update_from_parser(self, parser), NULL);
 	return self;
@@ -381,7 +381,7 @@ void pup_device_encode(PSDataEncoder *encoder, gpointer data,
                        gpointer dummy)
 {
 	PupDevice *self = (PupDevice *) data;
-	pup_vm_encode_tag(encoder, self->catagory);
+	pup_vm_encode_tag(encoder, self->category);
 	ps_data_encoder_add_str0(encoder, self->sysname, PS_DATA_ENCODER_ALLOC);
 	ps_data_encoder_add_str0(encoder, self->icon_name, PS_DATA_ENCODER_ALLOC);
 	ps_data_encoder_add_str0(encoder, self->display_name, PS_DATA_ENCODER_ALLOC);
@@ -423,12 +423,12 @@ void pup_vm_event_free_data(PupVMEvent *event, gboolean free_header)
 
 PupDevice *pup_device_new(GType type, const gchar *sysname)
 {
-	gint catagory;
+	gint category;
 	PupDevice *dev;
 	if (g_type_is_a(type, PUP_TYPE_VOLUME))
-		catagory = PUP_CATAGORY_VOLUME;
+		category = PUP_CATEGORY_VOLUME;
 	else if (g_type_is_a(type, PUP_TYPE_DRIVE))
-		catagory = PUP_CATAGORY_DRIVE;
+		category = PUP_CATEGORY_DRIVE;
 	else
 	{
 		g_critical("A new device must be a volume or a drive");
@@ -437,7 +437,7 @@ PupDevice *pup_device_new(GType type, const gchar *sysname)
 
 	dev = PUP_DEVICE(g_object_new(type, NULL));
 
-	dev->catagory = catagory;
+	dev->category = category;
 	dev->sysname = g_strdup(sysname);
 
 	return dev;

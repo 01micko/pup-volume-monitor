@@ -1,46 +1,8 @@
-//monitor.c or monitor.h
 //Server side volume monitor implementation
 
-#ifndef PUP_VM_H_INSIDE
-//monitor.c
 #include "common.h"
-#else
-//monitor.h
 
-typedef struct
-{
-	PupVMMonitor parent;
-
-	gboolean initialized;
-
-	//udev stuff
-	struct udev *udev_ctx;
-	GThread *udev_thread;
-
-	//probing
-	GThreadPool *dev_probe_thread_pool;
-} PupServerMonitor;
-
-typedef struct
-{
-	PupVMMonitorClass parent;
-
-	guint broadcast_signal_id;
-} PupServerMonitorClass;
-
-
-
-//FILE_HEADER_SUBST:gobject_macro_gen PUP_SERVER_MONITOR PupServerMonitor pup_server_monitor pup
-
-#endif //PUP_VM_H_INSIDE
-
-//FILE_HEADER_END
-
-#ifndef PUP_VM_H_INSIDE
 G_DEFINE_TYPE(PupServerMonitor, pup_server_monitor, PUP_TYPE_VM_MONITOR);
-#else
-GType pup_server_monitor_get_type();
-#endif
 
 static void pup_server_monitor_class_init(PupServerMonitorClass *klass)
 {
@@ -461,20 +423,20 @@ void pup_server_monitor_update_mnt_info(PupVMMonitor *monitor, gpointer dummy)
 }
 
 //Operation management
-void pup_server_monitor_start_operation(PupServerMonitor *self, guint catagory,
+void pup_server_monitor_start_operation(PupServerMonitor *self, guint category,
                                    const gchar *sysname, PupOperation *operation)
 {
 	pup_vm_monitor_lock(PUP_VM_MONITOR(self));	
 
-	PupDevice *dev = pup_vm_monitor_lookup(PUP_VM_MONITOR(self), catagory,
+	PupDevice *dev = pup_vm_monitor_lookup(PUP_VM_MONITOR(self), category,
 	                                       sysname, FALSE);
 	if (! dev)
 	{
-		g_warning("Sysname %s not found in catagory %d", sysname, catagory);
+		g_warning("Sysname %s not found in category %d", sysname, category);
 		pup_operation_return(operation, FALSE, G_IO_ERROR_INVALID_ARGUMENT,
 		                     "Invalid argument (requested device not found)"
-		                     ": sysname %s not found in catagory %d in server",
-		                     sysname, catagory);
+		                     ": sysname %s not found in category %d in server",
+		                     sysname, category);
 		pup_vm_monitor_unlock(PUP_VM_MONITOR(self));
 		return;
 	}
