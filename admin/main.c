@@ -1,7 +1,7 @@
 //main.c
 //The admin program, used to monitor and control daemon
 
-#include "common.h"
+#include <libpupvm/common-includes.h>
 #include <config.h>
 
 gboolean throw_error(GError *error, gboolean terminate)

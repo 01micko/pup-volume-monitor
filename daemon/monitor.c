@@ -1,46 +1,8 @@
-//monitor.c or monitor.h
 //Server side volume monitor implementation
 
-#ifndef PUP_VM_H_INSIDE
-//monitor.c
 #include "common.h"
-#else
-//monitor.h
 
-typedef struct
-{
-	PupVMMonitor parent;
-
-	gboolean initialized;
-
-	//udev stuff
-	struct udev *udev_ctx;
-	GThread *udev_thread;
-
-	//probing
-	GThreadPool *dev_probe_thread_pool;
-} PupServerMonitor;
-
-typedef struct
-{
-	PupVMMonitorClass parent;
-
-	guint broadcast_signal_id;
-} PupServerMonitorClass;
-
-
-
-//FILE_HEADER_SUBST:gobject_macro_gen PUP_SERVER_MONITOR PupServerMonitor pup_server_monitor pup
-
-#endif //PUP_VM_H_INSIDE
-
-//FILE_HEADER_END
-
-#ifndef PUP_VM_H_INSIDE
 G_DEFINE_TYPE(PupServerMonitor, pup_server_monitor, PUP_TYPE_VM_MONITOR);
-#else
-GType pup_server_monitor_get_type();
-#endif
 
 static void pup_server_monitor_class_init(PupServerMonitorClass *klass)
 {
