@@ -28,11 +28,7 @@ struct _PupVMMonitor
 	GHashTable *mounts;
 	gchar *mtab_file;
 
-#if GLIB_CHECK_VERSION(2, 32, 0)
 	GRecMutex lock;
-#else
-	GStaticRecMutex lock;
-#endif
 };
 
 typedef struct 
@@ -115,11 +111,7 @@ static void pup_vm_monitor_init(PupVMMonitor *self)
 	self->drives = g_hash_table_new(g_str_hash, g_str_equal);
 	self->volumes = g_hash_table_new(g_str_hash, g_str_equal);
 
-#if GLIB_CHECK_VERSION(2, 32, 0)
 	g_rec_mutex_init(&(self->lock));
-#else
-	g_static_rec_mutex_init(&(self->lock));
-#endif
 
 	//Only this much is required by clients
 	if (pup_vm_is_client) return;
@@ -153,20 +145,12 @@ PupVMMonitor *pup_vm_monitor_get()
 
 void pup_vm_monitor_lock(PupVMMonitor *self)
 {
-#if GLIB_CHECK_VERSION(2, 32, 0)
 	g_rec_mutex_lock(&(self->lock));
-#else
-	g_static_rec_mutex_lock(&(self->lock));
-#endif
 }
 
 void pup_vm_monitor_unlock(PupVMMonitor *self)
 {
-#if GLIB_CHECK_VERSION(2, 32, 0)
 	g_rec_mutex_unlock(&(self->lock));
-#else
-	g_static_rec_mutex_unlock(&(self->lock));
-#endif
 }
 
 GHashTable *pup_vm_monitor_get_hash_table(PupVMMonitor *self, PupDevice *dev)

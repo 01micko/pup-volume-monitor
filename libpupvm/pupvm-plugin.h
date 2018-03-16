@@ -15,6 +15,20 @@
 
 #include <sys/socket.h>
 
+#if ! GLIB_CHECK_VERSION(2, 32, 0)
+#define g_hash_table_add(ht, key) g_hash_table_replace(ht, key, key)
+/* http://lists.geany.org/pipermail/github-comments/2016-January/002026.html */
+#define g_hash_table_contains(ht, key) g_hash_table_lookup_extended(ht, key, NULL, NULL)
+/* https://gist.github.com/shadeslayer/1607267 */
+#define GRecMutex GStaticRecMutex
+#define g_rec_mutex_init(x) g_static_rec_mutex_init(x)
+#define g_rec_mutex_lock(x) g_static_rec_mutex_lock(x)
+#define g_rec_mutex_unlock(x) g_static_rec_mutex_unlock(x)
+/* https://developer.gnome.org/glib/stable/glib-Deprecated-Thread-APIs.html */
+#define g_thread_new(name,func,data) g_thread_create(func,data,TRUE,NULL)
+#define g_thread_try_new(name,func,data,error) g_thread_create(func,data,TRUE,error)
+#endif
+
 G_BEGIN_DECLS
 
 #define PUP_VM_H_INSIDE

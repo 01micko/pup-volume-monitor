@@ -1,11 +1,6 @@
 //pupvm-monitor.c or pupvm-monitor.h
 //The volume monitor, server side
 
-/* http://lists.geany.org/pipermail/github-comments/2016-January/002026.html */
-#if !GLIB_CHECK_VERSION(2, 32, 0)
-#define g_hash_table_contains(ht, key) g_hash_table_lookup_extended(ht, key, NULL, NULL)
-#endif
-
 #ifndef PUP_VM_H_INSIDE
 //pupvm-monitor.c
 #	include "common-includes.h"
@@ -32,13 +27,7 @@ struct _PupVMMonitor
 
 	GHashTable *mounts;
 	gchar *mtab_file;
-
-#if GLIB_CHECK_VERSION(2, 32, 0)
 	GRecMutex lock;
-#else
-	GStaticRecMutex lock;
-#endif
-
 };
 
 typedef struct 
