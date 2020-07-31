@@ -36,6 +36,10 @@ AC_CHECK_HEADERS([fcntl.h stdlib.h string.h sys/socket.h unistd.h])
 # Checks for library functions.
 AC_CHECK_FUNCS([floor select socket])
 
+case "$CC" in
+  gcc*) CPPFLAGS="$CPPFLAGS -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers" ;;
+  *) ;;
+esac
 
 AC_CONFIG_FILES([Makefile
                  libpupvm/Makefile
