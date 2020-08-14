@@ -8,8 +8,8 @@ AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([-Wall foreign silent-rules])
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 AC_CONFIG_MACRO_DIR([m4])
-AM_MAINTAINER_MODE
-AM_PROG_AR([ar])
+m4_ifdef([AM_MAINTAINER_MODE],[AM_MAINTAINER_MODE])
+m4_ifdef([AM_PROG_AR],[AM_PROG_AR([ar])])
 LT_INIT
 
 # Checks for programs.

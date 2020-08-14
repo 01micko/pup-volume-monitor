@@ -10,7 +10,7 @@
 
 #include <libpupvm/common-includes.h>
 //#include <libburn.h>
-#include <blkid.h>
+#include <blkid/blkid.h>
 #include <linux/cdrom.h>
 
 #undef G_LOG_DOMAIN

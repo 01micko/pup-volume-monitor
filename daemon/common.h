@@ -2,7 +2,7 @@
 //Common includes
 
 #include <libpupvm/common-includes.h>
-#include <blkid.h>
+#include <blkid/blkid.h>
 #include <glib/gstdio.h>
 
 
