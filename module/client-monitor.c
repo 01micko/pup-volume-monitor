@@ -5,8 +5,14 @@
 //client-monitor.c
 #include "common.h"
 
+G_DEFINE_DYNAMIC_TYPE(PupClientDevice, pup_client_device, G_TYPE_OBJECT);
+G_DEFINE_DYNAMIC_TYPE(PupClientMonitor, pup_client_monitor, PUP_TYPE_VM_MONITOR);
+
 #else // !PUP_VM_H_INSIDE
 //client-monitor.h
+
+GType pup_client_device_get_type();
+GType pup_client_monitor_get_type();
 
 typedef struct
 {
@@ -66,12 +72,6 @@ typedef struct
 //FILE_HEADER_END
 
 //Client side monitor
-
-#ifndef PUP_VM_H_INSIDE
-G_DEFINE_DYNAMIC_TYPE(PupClientMonitor, pup_client_monitor, PUP_TYPE_VM_MONITOR);
-#else
-GType pup_client_monitor_get_type();
-#endif
 
 void pup_client_monitor_register(GIOModule *module)
 {
@@ -370,12 +370,8 @@ void pup_client_monitor_user_respond_cb(GMountOperation *mount_operation,
 	}
 }
 
-//Client side device
-#ifndef PUP_VM_H_INSIDE
-G_DEFINE_DYNAMIC_TYPE(PupClientDevice, pup_client_device, G_TYPE_OBJECT);
-#else
-GType pup_client_device_get_type();
-#endif
+// ============================================================================
+// Client side device
 
 GQuark pup_client_device_quark()
 {

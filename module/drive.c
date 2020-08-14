@@ -5,8 +5,14 @@
 //drive.c
 #	include "common.h"
 
+G_DEFINE_DYNAMIC_TYPE_EXTENDED(PupClientDrive, pup_client_drive, PUP_TYPE_CLIENT_DEVICE, 0, 
+                               G_IMPLEMENT_INTERFACE_DYNAMIC(G_TYPE_DRIVE, pup_client_drive_init_iface)
+                               );
+
 #else // !PUP_VM_H_INSIDE
 //drive.h
+
+GType pup_client_drive_get_type(void);
 
 typedef struct
 {
@@ -25,17 +31,6 @@ typedef struct
 #endif //PUP_VM_H_INSIDE
 
 //FILE_HEADER_END
-
-
-
-#ifndef PUP_VM_H_INSIDE
-
-G_DEFINE_DYNAMIC_TYPE_EXTENDED(PupClientDrive, pup_client_drive, PUP_TYPE_CLIENT_DEVICE, 0, 
-                               G_IMPLEMENT_INTERFACE_DYNAMIC(G_TYPE_DRIVE, pup_client_drive_init_iface)
-                               );
-#else
-GType pup_client_drive_get_type(void);
-#endif
 
 //construction and destruction
 

@@ -4,8 +4,14 @@
 //mount.c
 #	include "common.h"
 
+G_DEFINE_DYNAMIC_TYPE_EXTENDED(PupMount, pup_mount, G_TYPE_OBJECT, 0, 
+                               G_IMPLEMENT_INTERFACE_DYNAMIC(G_TYPE_MOUNT, pup_mount_init_iface)
+                               );
+
 #else // !PUP_VM_H_INSIDE
 //mount.h
+
+GType pup_mount_get_type(void);
 
 struct _PupMount
 {
@@ -25,14 +31,6 @@ typedef struct
 #endif //PUP_VM_H_INSIDE
 
 //FILE_HEADER_END
-
-#ifndef PUP_VM_H_INSIDE
-G_DEFINE_DYNAMIC_TYPE_EXTENDED(PupMount, pup_mount, G_TYPE_OBJECT, 0, 
-                               G_IMPLEMENT_INTERFACE_DYNAMIC(G_TYPE_MOUNT, pup_mount_init_iface)
-                               );
-#else
-GType pup_mount_get_type(void);
-#endif
 
 //construction and destruction
 

@@ -5,8 +5,14 @@
 //client-monitor.c
 #include "common.h"
 
+G_DEFINE_DYNAMIC_TYPE(PupClientMonitor,pup_client_monitor,PUP_TYPE_VM_MONITOR);
+G_DEFINE_DYNAMIC_TYPE(PupClientDevice,pup_client_device,G_TYPE_OBJECT);
+
 #else // !PUP_VM_H_INSIDE
 //client-monitor.h
+
+GType pup_client_device_get_type();
+GType pup_client_monitor_get_type();
 
 typedef struct
 {
@@ -87,7 +93,7 @@ typedef struct
 
 #endif //PUP_VM_H_INSIDE
 
-/*Everything beyond this is automatically generated*/
+
 void pup_client_unlock(PupClientDevice *self);
 void pup_client_lock(PupClientDevice *self);
 gint pup_client_device_compare(gconstpointer dev1,gconstpointer dev2);
@@ -96,9 +102,7 @@ void pup_client_device_release_device(gpointer dev);
 void pup_client_device_finalize(GObject *instance);
 void pup_client_device_register(GIOModule *module);
 GQuark pup_client_device_quark();
-#if !(!defined(PUP_VM_H_INSIDE))
-GType pup_client_device_get_type();
-#endif
+
 void pup_client_monitor_user_respond_cb(GMountOperation *mount_operation,GMountOperationResult abort,PupGIOOperation *gio_operation);
 void pup_client_monitor_ask_question_cb(PupRemoteOperation *operation,const gchar *question,const gchar **choices);
 void pup_client_monitor_ask_passwd_cb(PupRemoteOperation *operation,const gchar *msg,GAskPasswordFlags flags);
@@ -111,10 +115,4 @@ void pup_client_monitor_get_devices_cb(PupConv *conv,PSDataParser *rcvd_data,gbo
 void pup_client_monitor_device_event_cb(PupVMMonitor *monitor,PupDevice *dev,guint event,const gchar *detail);
 void pup_client_monitor_finalize(GObject *instance);
 void pup_client_monitor_register(GIOModule *module);
-#if !(!defined(PUP_VM_H_INSIDE))
-GType pup_client_monitor_get_type();
-#endif
-#if !defined(PUP_VM_H_INSIDE)
-G_DEFINE_DYNAMIC_TYPE(PupClientMonitor,pup_client_monitor,PUP_TYPE_VM_MONITOR);
-G_DEFINE_DYNAMIC_TYPE(PupClientDevice,pup_client_device,G_TYPE_OBJECT);
-#endif
+

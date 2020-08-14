@@ -5,8 +5,12 @@
 //drive.c
 #	include "common.h"
 
+G_DEFINE_DYNAMIC_TYPE_EXTENDED(PupClientDrive,pup_client_drive,PUP_TYPE_CLIENT_DEVICE,0,G_IMPLEMENT_INTERFACE_DYNAMIC(G_TYPE_DRIVE,pup_client_drive_init_iface));
+
 #else // !PUP_VM_H_INSIDE
 //drive.h
+
+GType pup_client_drive_get_type(void);
 
 typedef struct
 {
@@ -36,7 +40,7 @@ typedef struct
 
 #endif //PUP_VM_H_INSIDE
 
-/*Everything beyond this is automatically generated*/
+
 gboolean pup_client_drive_can_poll_for_media(GDrive *drive);
 GVolume *pup_client_drive_next_volume(PupClientMonitor *monitor,const gchar *sysname,GHashTableIter *iter);
 const gchar *pup_client_drive_get_sort_key(GDrive *drive);
@@ -54,10 +58,4 @@ gboolean pup_client_drive_has_volumes(GDrive *drive);
 gchar *pup_client_drive_get_name(GDrive *drive);
 void pup_client_drive_register(GIOModule *module);
 void pup_client_drive_finalize(GObject *instance);
-#if !(!defined(PUP_VM_H_INSIDE))
-GType pup_client_drive_get_type(void);
-#endif
 void pup_client_drive_init_iface(GDriveIface *interface);
-#if !defined(PUP_VM_H_INSIDE)
-G_DEFINE_DYNAMIC_TYPE_EXTENDED(PupClientDrive,pup_client_drive,PUP_TYPE_CLIENT_DEVICE,0,G_IMPLEMENT_INTERFACE_DYNAMIC(G_TYPE_DRIVE,pup_client_drive_init_iface));
-#endif
