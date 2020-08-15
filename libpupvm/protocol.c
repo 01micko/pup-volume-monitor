@@ -173,7 +173,7 @@ gint ps_data_parser_parse_complex_array(PSDataParser *parser,
 	PupSockLen *num_elements = ps_data_parser_parse_next_fixed_block_noalloc
 		(parser, PUPSOCK_LEN_SIZE);
 	g_return_val_if_fail(num_elements, -1);
-	gint i;
+	gsize i;
 
 	for (i = 0; i < *num_elements; i++)
 	{
@@ -392,7 +392,7 @@ void ps_data_encoder_encode(PSDataEncoder *encoder, gpointer dest)
 			ps_data_encoder_encode((PSDataEncoder *) onedata->data,
 			                       &(retval[rw_ptr]));
 		else
-			g_memmove(&(retval[rw_ptr]), onedata->data, onedata->len);
+			memmove (&(retval[rw_ptr]), onedata->data, onedata->len);
 		rw_ptr += ((PSEncodeData *) iter->data)->len;
 	}
 
@@ -404,7 +404,7 @@ void ps_data_encoder_queue_send(PSDataEncoder *encoder, PupSock *sock)
 		(encoder->len + PUPSOCK_LEN_SIZE);
 	//Copy the size of the data
 	PupSockLen len = (PupSockLen) encoder->len;
-	g_memmove(buffer->data, (gpointer) &len, PUPSOCK_LEN_SIZE);
+	memmove (buffer->data, (gpointer) &len, PUPSOCK_LEN_SIZE);
 	//Copy the data
 	ps_data_encoder_encode(encoder, &(buffer->data[PUPSOCK_LEN_SIZE]));
 	pup_sock_queue_buffer(sock, buffer);

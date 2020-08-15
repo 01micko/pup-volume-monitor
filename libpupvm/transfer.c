@@ -67,7 +67,7 @@ void pup_sock_queue_send_block(PupSock *sock, gpointer mem, gsize size)
 {
 	PupSockBuffer *buf = pup_sock_buffer_new(size + PUPSOCK_LEN_SIZE);
 	*((PupSockLen *) buf->data) = (PupSockLen) size;
-	g_memmove((gpointer) &(buf->data[PUPSOCK_LEN_SIZE]), mem, size);
+	memmove ((gpointer) &(buf->data[PUPSOCK_LEN_SIZE]), mem, size);
 	pup_sock_queue_buffer(sock, buf);
 }
 

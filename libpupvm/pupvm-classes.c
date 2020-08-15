@@ -491,8 +491,8 @@ void pup_device_swap_contents(PupDevice *dev1, PupDevice *dev2)
 	//We should not copy GObject portion
 	gsize copy_bytes = PUP_DEVICE_GET_CLASS(dev1)->size - sizeof(PupDeviceHeaderArea);
 	gpointer backup = g_memdup(&(dev1->icon_name), copy_bytes);
-	g_memmove(&(dev1->icon_name), &(dev2->icon_name), copy_bytes);
-	g_memmove(&(dev2->icon_name), backup, copy_bytes);
+	memmove (&(dev1->icon_name), &(dev2->icon_name), copy_bytes);
+	memmove (&(dev2->icon_name), backup, copy_bytes);
 	g_free(backup);
 }
 
