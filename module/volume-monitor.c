@@ -249,15 +249,11 @@ gboolean pup_volume_monitor_generic_finish(GObject *object, GAsyncResult *result
                                            GError **error)
 {
 #if GLIB_CHECK_VERSION(2, 46, 0)
-	return (g_task_propagate_boolean(G_TASK(result), error));
+	return (g_task_propagate_boolean (G_TASK (result), error));
 #else
-	// g_simple_async... was deprecated in 2.46
 	gboolean res = TRUE;
-	if (g_simple_async_result_propagate_error(G_SIMPLE_ASYNC_RESULT(result),
-	                                          error))
-	{
+	if (g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (result), error))
 		res = FALSE;
-	}
 	return res;
 #endif
 }

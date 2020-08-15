@@ -216,17 +216,18 @@ void pup_client_volume_mount(GVolume *volume, GMountMountFlags flags,
 {
 	PupClientDevice *self = PUP_CLIENT_DEVICE(volume);
 	pup_client_lock(self);
-	pup_client_monitor_start_operation
-		(self->monitor, self->holder, "mount", NULL, mount_operation,
+
 #if GLIB_CHECK_VERSION(2, 46, 0)
-		 // introduced in 2.36
-		 G_ASYNC_RESULT(g_task_new (self, cancellable, callback, user_data)), pup_client_volume_mount);
+	GTask *task; // introduced in 2.36
+	task = g_task_new (self, cancellable, callback, user_data);
 #else
-		 // deprecated in 2.46
-		 G_ASYNC_RESULT(g_simple_async_result_new(G_OBJECT(self), callback, user_data,
-		                           pup_client_volume_mount)), NULL);
+	GSimpleAsyncResult * task; // deprecated in 2.46
+	task = g_simple_async_result_new (G_OBJECT(self), callback, user_data, pup_client_volume_mount);
 #endif
 
+	pup_client_monitor_start_operation (self->monitor, self->holder,
+	                                    "mount", NULL, mount_operation,
+	                                    task);
 	pup_client_unlock(self);
 }
 
@@ -278,15 +279,18 @@ void pup_client_volume_eject_w_operation(GVolume *volume,
 {
 	PupClientDevice *self = PUP_CLIENT_DEVICE(volume);
 	pup_client_lock(self);
-	pup_client_monitor_start_operation
-		(self->monitor, self->holder, "eject", NULL, mount_operation,
+
 #if GLIB_CHECK_VERSION(2, 46, 0)
-		 G_ASYNC_RESULT(g_task_new(self, cancellable, callback, user_data)), pup_client_volume_eject); // introduced in 2.36
+	GTask *task; // introduced in 2.36
+	task = g_task_new (self, cancellable, callback, user_data);
 #else
-		 // deprecated in 2.46
-		 G_ASYNC_RESULT(g_simple_async_result_new(G_OBJECT(self), callback, user_data,
-		                           pup_client_volume_eject)), NULL);
+	GSimpleAsyncResult * task; // deprecated in 2.46
+	task = g_simple_async_result_new (G_OBJECT(self), callback, user_data, pup_client_volume_eject);
 #endif
+
+	pup_client_monitor_start_operation (self->monitor, self->holder,
+	                                    "eject", NULL, mount_operation,
+	                                    task);
 	pup_client_unlock(self);
 }
 
