@@ -24,11 +24,9 @@ int main(int argc, char *argv[])
 	GError *error = NULL;
 	guint32 cnum;
 	gchar *buf;
-	gsize size;
 	gdouble data2;
 	PSDataParser *parser;
 	PSDataEncoder *encoder;
-	PupSockData data;
 
 #if !GLIB_CHECK_VERSION(2, 36, 0) //g_type_init() was deprecated in 2.36
 	g_type_init();
