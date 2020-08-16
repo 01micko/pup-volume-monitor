@@ -4,6 +4,23 @@
 
 G_DEFINE_TYPE(PupServerMonitor, pup_server_monitor, PUP_TYPE_VM_MONITOR);
 
+const gchar *pup_event_strv[] = {"none", "add", "remove", "change"};
+const gchar *pup_volume_events[] =
+{
+	"none",
+	PUP_VOLUME_EVENT_MOUNT,
+	PUP_VOLUME_EVENT_UMOUNT,
+	PUP_VOLUME_EVENT_REMOUNT
+};
+
+static void pup_drive_process_event (PupVMMonitor *monitor,struct udev_device *dev,gboolean process_change);
+static gpointer pup_server_monitor_udev_thread (gpointer data);
+static void pup_server_monitor_device_event_broadcast (PupVMMonitor *monitor,PSDataEncoder *encoder);
+static void pup_server_monitor_device_event_cb (PupVMMonitor *monitor,PupDevice *dev,guint event,const gchar *detail);
+static void pup_server_monitor_probe_thread_func (struct udev_device *dev,PupVMMonitor *monitor);
+static void pup_server_monitor_update_mnt_info (PupVMMonitor *monitor,gpointer dummy);
+static void pup_server_monitor_udev_event (PupVMMonitor *monitor,struct udev_device *dev);
+
 static void pup_server_monitor_class_init(PupServerMonitorClass *klass)
 {
 	PupVMMonitorClass *parent_class = PUP_VM_MONITOR_CLASS(klass);
@@ -113,17 +130,8 @@ void pup_server_monitor_dump_contents(PupServerMonitor *self)
 	                     NULL);
 }
 
-const gchar *pup_event_strv[] = {"none", "add", "remove", "change"};
-
-const gchar *pup_volume_events[] =
-{
-	"none",
-	PUP_VOLUME_EVENT_MOUNT,
-	PUP_VOLUME_EVENT_UMOUNT,
-	PUP_VOLUME_EVENT_REMOUNT
-};
-
-void pup_server_monitor_device_event_cb(PupVMMonitor *monitor, PupDevice *dev,
+static void
+pup_server_monitor_device_event_cb (PupVMMonitor *monitor, PupDevice *dev,
                                         guint event, const gchar *detail)
 {
 	//Don't raise events while initializing
@@ -169,7 +177,8 @@ void pup_server_monitor_device_event_cb(PupVMMonitor *monitor, PupDevice *dev,
 	                    encoder);
 }
 
-void pup_server_monitor_device_event_broadcast(PupVMMonitor *monitor,
+static void
+pup_server_monitor_device_event_broadcast (PupVMMonitor *monitor,
                                                PSDataEncoder *encoder)
 {
 	//Broadcast events to all intrested clients
@@ -180,7 +189,8 @@ void pup_server_monitor_device_event_broadcast(PupVMMonitor *monitor,
 	ps_data_encoder_destroy(encoder);
 }
 
-gpointer pup_server_monitor_udev_thread(gpointer data)
+static gpointer
+pup_server_monitor_udev_thread (gpointer data)
 {
 	PupServerMonitor *self = PUP_SERVER_MONITOR(data);
 	GPollFD pollfd;
@@ -229,8 +239,8 @@ void pup_server_monitor_start_udev_thread(PupServerMonitor *self)
 }
 
 //Device probing routing from here onwards
-void pup_server_monitor_udev_event(PupVMMonitor *monitor,
-                                   struct udev_device *dev)
+static void
+pup_server_monitor_udev_event(PupVMMonitor *monitor, struct udev_device *dev)
 {
 	GError *error = NULL;
 
@@ -247,7 +257,8 @@ void pup_server_monitor_udev_event(PupVMMonitor *monitor,
 	}
 }
 
-void pup_drive_process_event(PupVMMonitor *monitor, struct udev_device *dev,
+static void
+pup_drive_process_event (PupVMMonitor *monitor, struct udev_device *dev,
                              gboolean process_change)
 {
 	PupDrive *drive = pup_vm_monitor_lookup_drive
@@ -289,8 +300,8 @@ void pup_drive_process_event(PupVMMonitor *monitor, struct udev_device *dev,
 	}
 }
 
-void pup_server_monitor_probe_thread_func(struct udev_device *dev,
-                                          PupVMMonitor *monitor)
+static void
+pup_server_monitor_probe_thread_func (struct udev_device *dev, PupVMMonitor *monitor)
 {
 	/*
 	 printf("udev event raised\n");
@@ -399,7 +410,8 @@ gboolean pup_server_monitor_mounts_check_func(gpointer data)
 	return TRUE;
 }
 
-void pup_server_monitor_update_mnt_info(PupVMMonitor *monitor, gpointer dummy)
+static void
+pup_server_monitor_update_mnt_info (PupVMMonitor *monitor, gpointer dummy)
 {
 	GHashTableIter iter;
 	g_hash_table_iter_init(&iter, monitor->volumes);

@@ -3,11 +3,34 @@
 
 #include "common.h"
 
+static void pup_volume_mount_func (PupDevice *dev, PupOperation *operation);
+static void pup_volume_umount_func (PupDevice *dev, PupOperation *operation);
+static void mount_umount_thread_func (gpointer data, gpointer user_data);
+static void pup_device_destroy_dbg_info (gpointer dev);
+
+typedef enum
+{
+	PUP_EXEC_MOUNT = 0,
+	PUP_EXEC_UMOUNT = 1
+} PupMountAction;
+
+typedef struct
+{
+	PupVolume *volume;
+	PupVolume *rpl_volume;
+	PupMountAction action;
+	gchar *event;
+	PupOperation *operation;
+	gchar *retval;
+} PupMountExec;
+
+
 //First create command executor
 static GThreadPool *mount_umount_thread_pool;
 
 //PupVolume::"mount"
-void pup_volume_mount_func(PupDevice *dev, PupOperation *operation)
+static void
+pup_volume_mount_func (PupDevice *dev, PupOperation *operation)
 {
 	//Check for immediate failures (whether mounting will fail)
 	PupVolume *volume = PUP_VOLUME(dev);
@@ -45,7 +68,8 @@ void pup_volume_mount_func(PupDevice *dev, PupOperation *operation)
 }
 
 //PupVolume::"umount"
-void pup_volume_umount_func(PupDevice *dev, PupOperation *operation)
+static void
+pup_volume_umount_func(PupDevice *dev, PupOperation *operation)
 {
 	//Check for immediate failures (whether unmounting will fail)
 	PupVolume *volume = PUP_VOLUME(dev);
@@ -85,7 +109,8 @@ void pup_volume_umount_func(PupDevice *dev, PupOperation *operation)
 
 
 //Thread function
-static void mount_umount_thread_func(gpointer data, gpointer user_data)
+static void
+mount_umount_thread_func(gpointer data, gpointer user_data)
 {
 	PupMountExec *exec = (PupMountExec *) data;
 	GError *error = NULL;
@@ -151,7 +176,8 @@ static void mount_umount_thread_func(gpointer data, gpointer user_data)
 	g_free(exec->event);
 }
 
-void pup_device_destroy_dbg_info(gpointer dev)
+static void
+pup_device_destroy_dbg_info(gpointer dev)
 {
 	//printf("\nDevice freed\n");
 	//pup_device_show(PUP_DEVICE(dev));

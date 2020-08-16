@@ -30,11 +30,13 @@ gint main(gint argc, gchar *argv[])
 
 	//Create new server
 	PupServer *server = pup_server_setup();
+
 	//Create new monitor
-	server->monitor
-		= PUP_SERVER_MONITOR(g_object_new(PUP_TYPE_SERVER_MONITOR, NULL));
+	server->monitor = PUP_SERVER_MONITOR (g_object_new (PUP_TYPE_SERVER_MONITOR, NULL));
+
 	//Load plugins
 	pup_vm_settings_load_plugins();
+
 	//Get mount info
 	pup_vm_monitor_get_mounts(PUP_VM_MONITOR(server->monitor));
 

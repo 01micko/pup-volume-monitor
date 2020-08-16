@@ -2,6 +2,33 @@
 
 #include "common.h"
 
+typedef struct
+{
+	PupServer *server;
+	PupConvMgr *cmgr;
+	gulong event_signal_handle;
+	PupConv *event_conv;
+} PupClient;
+
+typedef struct
+{
+	PupOperation parent;
+	PupConv *conv;
+	gboolean is_valid;
+} PupServerOperation;
+
+static void pup_server_new_client_cb (PupSock *sock, PupSock *new_connection, PupServer *self);
+static void pup_client_destroy (PupClient *client);
+static void pup_client_disconnect_cb (PupSock *sock, PupClient *client);
+static void pup_client_unset_event_conv_cb (PupConv *conv, PupClient *client);
+static void pup_client_operation_msg_cb (PupOperation *operation, PSDataEncoder *encoder);
+static void pup_client_operation_msg_delayed (PupServerOperation *operation, PSDataEncoder *encoder);
+static void pup_client_new_conv_cb (PupConv *conv, PSDataParser *recvd_data,  gboolean is_new, gpointer user_data, gpointer dummy);
+//static void pup_client_operation_query_response_cb(PupConv *conv, PSDataParser *parser, gboolean is_new, PupClient *client, PupServerOperation *operation);
+static void pup_client_operation_invalidate (PupConv *conv, PupServerOperation *operation);
+static void pup_client_send_event (PupServerMonitor *monitor,PSDataEncoder *encoder,PupConv *conv);
+
+
 //Check whether server is running
 gboolean pup_server_check_is_running()
 {
@@ -46,7 +73,8 @@ PupServer *pup_server_setup()
 	return self;
 }
 
-void pup_server_new_client_cb(PupSock *sock, PupSock *new_connection, PupServer *self)
+static void
+pup_server_new_client_cb (PupSock *sock, PupSock *new_connection, PupServer *self)
 {
 	PupClient *client = g_slice_new0(PupClient);
 
@@ -61,7 +89,8 @@ void pup_server_new_client_cb(PupSock *sock, PupSock *new_connection, PupServer 
 	pup_sock_set_destroy_params(new_connection, FALSE, 0);
 }
 
-void pup_client_set_event_conv(PupClient *client, PupConv *conv)
+static void
+pup_client_set_event_conv (PupClient *client, PupConv *conv)
 {
 	g_return_if_fail(! client->event_signal_handle);
 	client->event_signal_handle
@@ -71,7 +100,8 @@ void pup_client_set_event_conv(PupClient *client, PupConv *conv)
 	pup_conv_set_close_callback(conv, (PupConvCloseCB) pup_client_unset_event_conv_cb, client);
 }
 
-void pup_client_unset_event_conv_cb(PupConv *conv, PupClient *client)
+static void
+pup_client_unset_event_conv_cb (PupConv *conv, PupClient *client)
 {
 	if (client->event_signal_handle)
 	{
@@ -82,25 +112,29 @@ void pup_client_unset_event_conv_cb(PupConv *conv, PupClient *client)
 	client->event_signal_handle = 0;
 }
 
-void pup_client_send_event(PupServerMonitor *monitor, PSDataEncoder *encoder,
+static void
+pup_client_send_event (PupServerMonitor *monitor, PSDataEncoder *encoder,
                            PupConv *conv)
 {
 	pup_conv_send_message(conv, encoder);
 }
 
-void pup_client_destroy(PupClient *client)
+static void
+pup_client_destroy (PupClient *client)
 {
 	g_object_unref(client->cmgr);
 
 	g_slice_free(PupClient, client);
 }
 
-void pup_client_disconnect_cb(PupSock *sock, PupClient *client)
+static void
+pup_client_disconnect_cb (PupSock *sock, PupClient *client)
 {
 	g_hash_table_remove(client->server->clients, client);
 }
 
-void pup_client_start_operation(PupClient *client, PSDataParser *parser,
+static void
+pup_client_start_operation (PupClient *client, PSDataParser *parser,
                                 PupConv *conv)
 {
 	guint category;
@@ -130,14 +164,16 @@ void pup_client_start_operation(PupClient *client, PSDataParser *parser,
 	g_free(sysname);
 }
 
-void pup_client_operation_msg_cb(PupOperation *operation,
+static void
+pup_client_operation_msg_cb (PupOperation *operation,
                                     PSDataEncoder *encoder)
 {
 	pup_queue_call_func(operation, (PupFunc) pup_client_operation_msg_delayed,
 	                    encoder);
 }
 
-void pup_client_operation_msg_delayed(PupServerOperation *operation,
+static void
+pup_client_operation_msg_delayed (PupServerOperation *operation,
                                          PSDataEncoder *encoder)
 {
 	if (operation->is_valid)
@@ -155,7 +191,9 @@ void pup_client_operation_msg_delayed(PupServerOperation *operation,
 	}
 }
 
-void pup_client_operation_query_response_cb(PupConv *conv, PSDataParser *parser,
+/*
+static void
+pup_client_operation_query_response_cb (PupConv *conv, PSDataParser *parser,
                                             gboolean is_new, PupClient *client,
                                             PupServerOperation *operation)
 {
@@ -177,15 +215,18 @@ void pup_client_operation_query_response_cb(PupConv *conv, PSDataParser *parser,
 			 username, password, domain);
 	}
 }
+*/
 
-void pup_client_operation_invalidate(PupConv *conv, PupServerOperation *operation)
+static void
+pup_client_operation_invalidate (PupConv *conv, PupServerOperation *operation)
 {
 	operation->is_valid = FALSE;
 	if (! operation->parent.has_returned)
 		pup_conv_close(operation->conv, PUP_CONV_FREE);
 }
 
-void pup_client_new_conv_cb(PupConv *conv, PSDataParser *recvd_data, 
+static void
+pup_client_new_conv_cb (PupConv *conv, PSDataParser *recvd_data, 
                             gboolean is_new, gpointer user_data, gpointer dummy)
 {
 	g_return_if_fail(is_new);
