@@ -1,40 +1,9 @@
-//volume_monitor.c or volume_monitor.h
 //GVolumeMonitor class implementation: PupVolumeMonitor
 
-#ifndef PUP_VM_H_INSIDE
-//volume_monitor.c
-#	include "common.h"
+#include "common.h"
 
-G_DEFINE_DYNAMIC_TYPE_EXTENDED
-	(PupVolumeMonitor, pup_volume_monitor, G_TYPE_NATIVE_VOLUME_MONITOR, 0,
-	 pup_volume_monitor_implement_extension_point());
-
-#else // !PUP_VM_H_INSIDE
-//volume_monitor.h
-
-GType pup_volume_monitor_get_type();
-
-typedef struct
-{
-	GNativeVolumeMonitor parent;
-
-	PupClientMonitor *monitor;
-	guint reconnect_source_tag;
-
-	gboolean initialized;
-} PupVolumeMonitor;
-
-typedef struct
-{
-	GNativeVolumeMonitorClass parent;
-
-} PupVolumeMonitorClass;
-
-//FILE_HEADER_SUBST:gobject_macro_gen PUP_VOLUME_MONITOR PupVolumeMonitor pup_volume_monitor pup
-
-#endif // PUP_VM_H_INSIDE
-
-//FILE_HEADER_END
+G_DEFINE_DYNAMIC_TYPE_EXTENDED (PupVolumeMonitor, pup_volume_monitor, G_TYPE_NATIVE_VOLUME_MONITOR, 0,
+	                            pup_volume_monitor_implement_extension_point());
 
 
 //construction and destruction

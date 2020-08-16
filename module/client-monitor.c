@@ -1,81 +1,19 @@
-//client-monitor.c or client-monitor.h
 //Connecting to server, getting jobs done through server, etc.
 
-#ifndef PUP_VM_H_INSIDE
-//client-monitor.c
 #include "common.h"
 
-G_DEFINE_DYNAMIC_TYPE(PupClientDevice, pup_client_device, G_TYPE_OBJECT);
 G_DEFINE_DYNAMIC_TYPE(PupClientMonitor, pup_client_monitor, PUP_TYPE_VM_MONITOR);
+G_DEFINE_DYNAMIC_TYPE(PupClientDevice, pup_client_device, G_TYPE_OBJECT);
 
-#else // !PUP_VM_H_INSIDE
-//client-monitor.h
-
-GType pup_client_device_get_type();
-GType pup_client_monitor_get_type();
-
-typedef struct
-{
-	PupVMMonitor parent;
-
-	PupConvMgr *cmgr;
-	PupConv *event_conv;
-	gboolean initialized;
-
-	GType volume_type;
-	GType drive_type;
-	GObject *volume_monitor;
-} PupClientMonitor;
-
-typedef struct 
-{
-	PupVMMonitorClass parent;
-
-	guint hup_signal_id;
-} PupClientMonitorClass;
-
-//FILE_HEADER_SUBST:gobject_macro_gen PUP_CLIENT_MONITOR PupClientMonitor pup_client_monitor pup
-
-typedef struct
-{
-	GObject parent;
-
-	PupDevice *holder;
-	PupClientMonitor *monitor;
-	GObject *volume_monitor;
-	gpointer iface;
-} PupClientDevice;
-
-typedef void (*PupClientDeviceSetup) (PupClientDevice *client_device,
-                                      PupDevice *holder);
-typedef struct
-{
-	GObjectClass parent;
-
-	PupClientDeviceSetup setup_func;
-} PupClientDeviceClass;
-
-//FILE_HEADER_SUBST:gobject_macro_gen PUP_CLIENT_DEVICE PupClientDevice pup_client_device pup
-
-typedef struct 
-{
-	PupRemoteOperation parent;
-
-	PupDevice *dev;
-	GMountOperation *mount_operation;
-#if GLIB_CHECK_VERSION(2, 46, 0)
-	GTask *result;
-#else
-	GSimpleAsyncResult *result;
-#endif	
-	guint current_query;
-} PupGIOOperation;
-
-#endif //PUP_VM_H_INSIDE
-
-//FILE_HEADER_END
+static void pup_client_monitor_user_respond_cb (GMountOperation *mount_operation,GMountOperationResult abort,PupGIOOperation *gio_operation);
+static void pup_client_monitor_finalize (GObject *instance);
+static void pup_client_monitor_device_event_cb (PupVMMonitor *monitor,PupDevice *dev,guint event,const gchar *detail);
+static void pup_client_monitor_get_devices_cb (PupConv *conv,PSDataParser *rcvd_data,gboolean is_new,PupClientMonitor *monitor,gpointer dummy);
+static void pup_client_monitor_disconnect_cb (PupSock *sock,PupClientMonitor *self);
+static void pup_client_monitor_svr_event_cb (PupConv *conv,PSDataParser *rcvd_data,gboolean is_new,PupClientMonitor *monitor,gpointer dummy);
 
 //Client side monitor
+
 
 void pup_client_monitor_register(GIOModule *module)
 {
@@ -107,7 +45,7 @@ static void pup_client_monitor_init(PupClientMonitor *self)
 	self->drive_type = PUP_TYPE_CLIENT_DRIVE;
 }
 
-void pup_client_monitor_finalize(GObject *instance)
+static void pup_client_monitor_finalize(GObject *instance)
 {
 	PupClientMonitor *self = PUP_CLIENT_MONITOR(instance);
 	//Disconnect from server, this statement is enough
@@ -116,7 +54,8 @@ void pup_client_monitor_finalize(GObject *instance)
 	G_OBJECT_CLASS(pup_client_monitor_parent_class)->finalize(instance);
 }
 
-void pup_client_monitor_get_devices_cb(PupConv *conv, PSDataParser *rcvd_data,
+static void
+pup_client_monitor_get_devices_cb(PupConv *conv, PSDataParser *rcvd_data,
                                        gboolean is_new, PupClientMonitor *monitor,
                                        gpointer dummy)
 {
@@ -140,7 +79,8 @@ void pup_client_monitor_get_devices_cb(PupConv *conv, PSDataParser *rcvd_data,
 	
 }
 
-void pup_client_monitor_disconnect_cb(PupSock *sock, PupClientMonitor *self)
+static void
+pup_client_monitor_disconnect_cb (PupSock *sock, PupClientMonitor *self)
 {
 	if (self->cmgr) g_object_unref(self->cmgr);
 	self->cmgr = NULL;
@@ -214,7 +154,8 @@ gboolean pup_client_monitor_connect(PupClientMonitor *self)
 	return TRUE;
 }
 
-void pup_client_monitor_svr_event_cb(PupConv *conv, PSDataParser *rcvd_data,
+static void
+pup_client_monitor_svr_event_cb(PupConv *conv, PSDataParser *rcvd_data,
                                      gboolean is_new, PupClientMonitor *monitor,
                                      gpointer dummy)
 {
@@ -251,7 +192,8 @@ void pup_client_monitor_svr_event_cb(PupConv *conv, PSDataParser *rcvd_data,
 	pup_vm_event_free_data(&event, TRUE);
 }
 
-void pup_client_monitor_device_event_cb(PupVMMonitor *monitor, 
+static void
+pup_client_monitor_device_event_cb(PupVMMonitor *monitor, 
                                         PupDevice *dev, guint event,
                                         const gchar *detail)
 {
@@ -351,9 +293,10 @@ void pup_client_monitor_ask_question_cb (PupRemoteOperation *operation,
 	                      "ask-question", question, choices);
 }
 
-void pup_client_monitor_user_respond_cb(GMountOperation *mount_operation,
-                                        GMountOperationResult abort,
-                                        PupGIOOperation *gio_operation)
+static void
+pup_client_monitor_user_respond_cb(GMountOperation *mount_operation,
+                                   GMountOperationResult abort,
+                                   PupGIOOperation *gio_operation)
 {
 	if (abort == G_MOUNT_OPERATION_ABORTED)
 		pup_remote_operation_abort(gio_operation->parent.conv);

@@ -1,16 +1,5 @@
-//mount.c or mount.h
 //GMount class implementation: PupMount
-
-#ifndef PUP_VM_H_INSIDE
-//mount.c
-#	include "common.h"
-
-G_DEFINE_DYNAMIC_TYPE_EXTENDED(PupMount,pup_mount,G_TYPE_OBJECT,0,G_IMPLEMENT_INTERFACE_DYNAMIC(G_TYPE_MOUNT,pup_mount_init_iface));
-
-#else // !PUP_VM_H_INSIDE
 //mount.h
-
-GType pup_mount_get_type(void);
 
 struct _PupMount
 {
@@ -25,23 +14,16 @@ typedef struct
 
 } PupMountClass;
 
-//FILE_HEADER_SUBST:gobject_macro_gen PUP_MOUNT PupMount pup_mount pup
-#define PUP_TYPE_MOUNT (pup_mount_get_type())
-#define PUP_MOUNT(ptr) \
-		(G_TYPE_CHECK_INSTANCE_CAST((ptr), PUP_TYPE_MOUNT, PupMount))
-#define PUP_IS_MOUNT(ptr) \
-		(G_TYPE_CHECK_INSTANCE_TYPE((ptr), PUP_TYPE_MOUNT))
-#define PUP_MOUNT_CLASS(ptr) \
-		(G_TYPE_CHECK_CLASS_CAST((ptr), PUP_TYPE_MOUNT, PupMountClass))
-#define PUP_IS_MOUNT_CLASS(ptr) \
-		(G_TYPE_CHECK_CLASS_TYPE((ptr), PUP_TYPE_MOUNT))
-#define PUP_MOUNT_GET_CLASS(ptr) \
-		(G_TYPE_INSTANCE_GET_CLASS((ptr), PUP_TYPE_MOUNT, PupMountClass))
+GType pup_mount_get_type(void);
+
+#define PUP_TYPE_MOUNT       (pup_mount_get_type())
+#define PUP_MOUNT(ptr)       (G_TYPE_CHECK_INSTANCE_CAST((ptr), PUP_TYPE_MOUNT, PupMount))
+#define PUP_IS_MOUNT(ptr)    (G_TYPE_CHECK_INSTANCE_TYPE((ptr), PUP_TYPE_MOUNT))
+#define PUP_MOUNT_CLASS(ptr) (G_TYPE_CHECK_CLASS_CAST((ptr), PUP_TYPE_MOUNT, PupMountClass))
+#define PUP_IS_MOUNT_CLASS(ptr)  (G_TYPE_CHECK_CLASS_TYPE((ptr), PUP_TYPE_MOUNT))
+#define PUP_MOUNT_GET_CLASS(ptr) (G_TYPE_INSTANCE_GET_CLASS((ptr), PUP_TYPE_MOUNT, PupMountClass))
 #define PUP_MOUNT_NAME "PupMount"
 
-#endif //PUP_VM_H_INSIDE
-
-/*Everything beyond this is automatically generated*/
 PupMount *pup_mount_get(PupClientVolume *parent);
 const gchar *pup_mount_get_sort_key(GMount *mount);
 void pup_mount_eject_w_operation(GMount *mount,GMountUnmountFlags flags,GMountOperation *mount_operation,GCancellable *cancellable,GAsyncReadyCallback callback,gpointer user_data);

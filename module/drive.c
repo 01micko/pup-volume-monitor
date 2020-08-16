@@ -1,36 +1,9 @@
-//drive.c or drive.h
 //GDrive class implementation: PupClientDrive
 
-#ifndef PUP_VM_H_INSIDE
-//drive.c
-#	include "common.h"
+#include "common.h"
 
 G_DEFINE_DYNAMIC_TYPE_EXTENDED(PupClientDrive, pup_client_drive, PUP_TYPE_CLIENT_DEVICE, 0, 
-                               G_IMPLEMENT_INTERFACE_DYNAMIC(G_TYPE_DRIVE, pup_client_drive_init_iface)
-                               );
-
-#else // !PUP_VM_H_INSIDE
-//drive.h
-
-GType pup_client_drive_get_type(void);
-
-typedef struct
-{
-	PupClientDevice parent;
-
-} PupClientDrive;
-
-typedef struct
-{
-	PupClientDeviceClass parent;
-
-} PupClientDriveClass;
-
-//FILE_HEADER_SUBST:gobject_macro_gen PUP_CLIENT_DRIVE PupClientDrive pup_client_drive pup
-
-#endif //PUP_VM_H_INSIDE
-
-//FILE_HEADER_END
+                               G_IMPLEMENT_INTERFACE_DYNAMIC(G_TYPE_DRIVE, pup_client_drive_init_iface));
 
 //construction and destruction
 

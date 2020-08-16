@@ -1,42 +1,10 @@
-//volume.c or volume.h
 //GVolume interface implementation: PupClientVolume
 
-#ifndef PUP_VM_H_INSIDE
-//volume.c
 #include "common.h"
 
 G_DEFINE_DYNAMIC_TYPE_EXTENDED(PupClientVolume, pup_client_volume, PUP_TYPE_CLIENT_DEVICE, 0, 
                                G_IMPLEMENT_INTERFACE_DYNAMIC
-                               (G_TYPE_VOLUME, pup_client_volume_init_iface)
-                               );
-
-#else // !PUP_VM_H_INSIDE
-//volume.h
-
-GType pup_client_volume_get_type(void);
-
-typedef struct _PupMount PupMount;
-
-typedef struct
-{
-	PupClientDevice parent;
-	
-	PupMount *mount;
-} PupClientVolume;
-
-typedef struct
-{
-	PupClientDeviceClass parent;
-
-} PupClientVolumeClass;
-
-//FILE_HEADER_SUBST:gobject_macro_gen PUP_CLIENT_VOLUME PupClientVolume pup_client_volume pup
-
-#define PUP_VOLUME_IDENTIFIER_KIND_FSTYPE "fstype"
-
-#endif //PUP_VM_H_INSIDE
-
-//FILE_HEADER_END
+                               (G_TYPE_VOLUME, pup_client_volume_init_iface));
 
 
 //construction and destruction
