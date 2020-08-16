@@ -1,38 +1,7 @@
-//transfer.c or transfer.h
 //Handles actual data transfer
-
-#ifndef PUP_VM_H_INSIDE
 //transfer.c
-#	include "common-includes.h"
 
-#else // !PUP_VM_H_INSIDE
-//transfer.h
-typedef guint32 PupSockLen;
-#	define PUPSOCK_LEN_SIZE sizeof(PupSockLen)
-
-typedef struct
-{
-	gint8 *data;
-	gsize len;
-} PupSockData;
-
-typedef void (*PupSockDataRecvdCB) (PupSock *sock, PupSockData *data,
-                                    gpointer user_data);
-
-typedef void (*PupSockHungUpCB) (PupSock *sock, gpointer user_data);
-
-#	define pup_sock_buffer_push(q, b) g_queue_push_head((q), (gpointer)( b))
-
-#	define pup_sock_buffer_pop(q) ((PupSockBuffer *) g_queue_pop_tail((q)))
-
-#	define pup_sock_buffer_knock(q) pup_sock_buffer_destroy(pup_sock_buffer_pop(q))
-
-#	define pup_sock_buffer_peek(q) ((PupSockBuffer *) g_queue_peek_tail((q)))
-
-#endif // PUP_VM_H_INSIDE
-
-//FILE_HEADER_END
-
+#include "common-includes.h"
 
 PupSockBuffer *pup_sock_buffer_new(guint len)
 {

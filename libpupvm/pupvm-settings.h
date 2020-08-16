@@ -1,12 +1,4 @@
-//pupvm-settings.c or pupvm-settings.h
 //Loading plugins and their settings
-
-#ifndef PUP_VM_H_INSIDE
-//pupvm-settings.c
-#include "common-includes.h"
-
-#else
-//pupvm-settings.c
 
 #define PUP_MNTPNT_ALLOWED_CHARS \
 	"0123456789QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm_"
@@ -43,26 +35,18 @@ typedef struct
 	
 } PupVMPluginClass;
 
-//FILE_HEADER_SUBST:gobject_macro_gen PUP_VM_PLUGIN PupVMPlugin pup_vm_plugin pup
-#define PUP_TYPE_VM_PLUGIN (pup_vm_plugin_get_type())
-#define PUP_VM_PLUGIN(ptr) \
-		(G_TYPE_CHECK_INSTANCE_CAST((ptr), PUP_TYPE_VM_PLUGIN, PupVMPlugin))
-#define PUP_IS_VM_PLUGIN(ptr) \
-		(G_TYPE_CHECK_INSTANCE_TYPE((ptr), PUP_TYPE_VM_PLUGIN))
-#define PUP_VM_PLUGIN_CLASS(ptr) \
-		(G_TYPE_CHECK_CLASS_CAST((ptr), PUP_TYPE_VM_PLUGIN, PupVMPluginClass))
-#define PUP_IS_VM_PLUGIN_CLASS(ptr) \
-		(G_TYPE_CHECK_CLASS_TYPE((ptr), PUP_TYPE_VM_PLUGIN))
-#define PUP_VM_PLUGIN_GET_CLASS(ptr) \
-		(G_TYPE_INSTANCE_GET_CLASS((ptr), PUP_TYPE_VM_PLUGIN, PupVMPluginClass))
+
+#define PUP_TYPE_VM_PLUGIN       (pup_vm_plugin_get_type())
+#define PUP_VM_PLUGIN(ptr)       (G_TYPE_CHECK_INSTANCE_CAST((ptr), PUP_TYPE_VM_PLUGIN, PupVMPlugin))
+#define PUP_IS_VM_PLUGIN(ptr)    (G_TYPE_CHECK_INSTANCE_TYPE((ptr), PUP_TYPE_VM_PLUGIN))
+#define PUP_VM_PLUGIN_CLASS(ptr) (G_TYPE_CHECK_CLASS_CAST((ptr), PUP_TYPE_VM_PLUGIN, PupVMPluginClass))
+#define PUP_IS_VM_PLUGIN_CLASS(ptr)  (G_TYPE_CHECK_CLASS_TYPE((ptr), PUP_TYPE_VM_PLUGIN))
+#define PUP_VM_PLUGIN_GET_CLASS(ptr) (G_TYPE_INSTANCE_GET_CLASS((ptr), PUP_TYPE_VM_PLUGIN, PupVMPluginClass))
 #define PUP_VM_PLUGIN_NAME "PupVMPlugin"
 
 typedef void (*PupVMPluginInit) (PupVMPlugin *plugin);
 typedef void (*PupVMPluginReconf) (PupVMPlugin *plugin); //Will be implemented later
 
-#endif
-
-/*Everything beyond this is automatically generated*/
 const gchar *pup_get_svr_sock_path();
 void pup_vm_settings_load_plugins();
 PupVMSettings *pup_vm_settings_get();
@@ -72,7 +56,4 @@ extern PupVMSettings *pup_vm_settings;
 PupVMPlugin *pup_vm_plugin_new(const gchar *filename,const gchar *plugin_name);
 void pup_vm_plugin_unload(GTypeModule *module);
 gboolean pup_vm_plugin_load(GTypeModule *module);
-#if !defined(PUP_VM_H_INSIDE)
-G_DEFINE_TYPE(PupVMPlugin,pup_vm_plugin,g_type_module_get_type());
-#endif
 gboolean pup_load_cfg_file(GKeyFile *key_file,const gchar *module);

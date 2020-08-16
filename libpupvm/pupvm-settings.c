@@ -1,56 +1,8 @@
 //pupvm-settings.c or pupvm-settings.h
 //Loading plugins and their settings
 
-#ifndef PUP_VM_H_INSIDE
 //pupvm-settings.c
 #include "common-includes.h"
-
-#else
-//pupvm-settings.c
-
-#define PUP_MNTPNT_ALLOWED_CHARS \
-	"0123456789QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm_"
-#define PUP_VM_DIR_NAME "pup-volume-monitor"
-
-typedef struct
-{
-	GHashTable *plugins;
-	//Daemon's own settings
-	GKeyFile *cfg_file;
-	gchar *volume_disp_name;
-	gchar *drive_disp_name;
-	gchar *volume_disp_name_fallback;
-	gchar *volume_mntpnt_name;
-	gchar *volume_mntpnt_name_fallback;
-	gchar *volume_mount_dir;
-} PupVMSettings;
-
-typedef struct
-{
-	GTypeModule parent;
-
-	GModule *module;
-	gchar *plugin_name;
-	gchar *plugin_path;
-	gboolean initialised;
-
-	GKeyFile *cfg_file;
-} PupVMPlugin;
-
-typedef struct 
-{
-	GTypeModuleClass parent;
-	
-} PupVMPluginClass;
-
-//FILE_HEADER_SUBST:gobject_macro_gen PUP_VM_PLUGIN PupVMPlugin pup_vm_plugin pup
-
-typedef void (*PupVMPluginInit) (PupVMPlugin *plugin);
-typedef void (*PupVMPluginReconf) (PupVMPlugin *plugin); //Will be implemented later
-
-#endif
-
-//FILE_HEADER_END
 
 //Config files
 gboolean pup_load_cfg_file(GKeyFile *key_file, const gchar *module)
@@ -108,9 +60,7 @@ gboolean pup_load_cfg_file(GKeyFile *key_file, const gchar *module)
 }
 
 //Plugins
-#ifndef PUP_VM_H_INSIDE
 G_DEFINE_TYPE(PupVMPlugin, pup_vm_plugin, g_type_module_get_type());
-#endif
 
 gboolean pup_vm_plugin_load(GTypeModule *module)
 {

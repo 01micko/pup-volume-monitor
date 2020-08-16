@@ -1,11 +1,4 @@
-//pupvm-monitor.c or pupvm-monitor.h
 //The volume monitor, server side
-
-#ifndef PUP_VM_H_INSIDE
-//pupvm-monitor.c
-#	include "common-includes.h"
-
-#else // !PUP_VM_H_INSIDE
 //pupvm-monitor.h
 
 //icons
@@ -55,23 +48,15 @@ typedef void (*PupDeviceEventCB) (PupVMMonitor *monitor,
                                   const gchar *detail,
                                   gpointer user_data);
 
-//FILE_HEADER_SUBST:gobject_macro_gen PUP_VM_MONITOR PupVMMonitor pup_vm_monitor pup
-#define PUP_TYPE_VM_MONITOR (pup_vm_monitor_get_type())
-#define PUP_VM_MONITOR(ptr) \
-		(G_TYPE_CHECK_INSTANCE_CAST((ptr), PUP_TYPE_VM_MONITOR, PupVMMonitor))
-#define PUP_IS_VM_MONITOR(ptr) \
-		(G_TYPE_CHECK_INSTANCE_TYPE((ptr), PUP_TYPE_VM_MONITOR))
-#define PUP_VM_MONITOR_CLASS(ptr) \
-		(G_TYPE_CHECK_CLASS_CAST((ptr), PUP_TYPE_VM_MONITOR, PupVMMonitorClass))
-#define PUP_IS_VM_MONITOR_CLASS(ptr) \
-		(G_TYPE_CHECK_CLASS_TYPE((ptr), PUP_TYPE_VM_MONITOR))
-#define PUP_VM_MONITOR_GET_CLASS(ptr) \
-		(G_TYPE_INSTANCE_GET_CLASS((ptr), PUP_TYPE_VM_MONITOR, PupVMMonitorClass))
+#define PUP_TYPE_VM_MONITOR       (pup_vm_monitor_get_type())
+#define PUP_VM_MONITOR(ptr)       (G_TYPE_CHECK_INSTANCE_CAST((ptr), PUP_TYPE_VM_MONITOR, PupVMMonitor))
+#define PUP_IS_VM_MONITOR(ptr)    (G_TYPE_CHECK_INSTANCE_TYPE((ptr), PUP_TYPE_VM_MONITOR))
+#define PUP_VM_MONITOR_CLASS(ptr) (G_TYPE_CHECK_CLASS_CAST((ptr), PUP_TYPE_VM_MONITOR, PupVMMonitorClass))
+#define PUP_IS_VM_MONITOR_CLASS(ptr)  (G_TYPE_CHECK_CLASS_TYPE((ptr), PUP_TYPE_VM_MONITOR))
+#define PUP_VM_MONITOR_GET_CLASS(ptr) (G_TYPE_INSTANCE_GET_CLASS((ptr), PUP_TYPE_VM_MONITOR, PupVMMonitorClass))
 #define PUP_VM_MONITOR_NAME "PupVMMonitor"
 
-#endif // PUP_VM_H_INSIDE
 
-/*Everything beyond this is automatically generated*/
 void pup_vm_monitor_destroy(PupVMMonitor *self);
 PupMntEntry *pup_vm_monitor_get_mount_for_devnode(PupVMMonitor *self,const gchar *devnode,gboolean dup);
 void pup_vm_monitor_get_mounts(PupVMMonitor *self);
@@ -94,10 +79,5 @@ GHashTable *pup_vm_monitor_get_hash_table(PupVMMonitor *self,PupDevice *dev);
 void pup_vm_monitor_unlock(PupVMMonitor *self);
 void pup_vm_monitor_lock(PupVMMonitor *self);
 PupVMMonitor *pup_vm_monitor_get();
-#if !(!defined(PUP_VM_H_INSIDE))
 GType pup_vm_monitor_get_type();
-#endif
-#if !defined(PUP_VM_H_INSIDE)
-G_DEFINE_TYPE(PupVMMonitor,pup_vm_monitor,G_TYPE_OBJECT);
-#endif
 void pup_mnt_entry_free(PupMntEntry *entry);

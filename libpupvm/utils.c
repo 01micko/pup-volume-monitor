@@ -1,26 +1,7 @@
-//utils.c or utils.h
 //Useful utility functions and macros
-
-#ifndef PUP_VM_H_INSIDE
 //utils.c
-#	include "common-includes.h"
 
-#else // !PUP_VM_H_INSIDE
-//utils.h
-
-#	define G_LIST_ITER(l, i) (i = l; i != NULL; i = i->next)
-
-typedef struct
-{
-	GTimer *timer;
-	gdouble target;
-} PSTimer;
-
-#	define PUP_STATIC static
-
-#endif // PUP_VM_H_INSIDE
-
-//FILE_HEADER_END
+#include "common-includes.h"
 
 void psutil_fill_sockaddr_local(const char *name, struct sockaddr **addr,
                                 gsize *size_return)

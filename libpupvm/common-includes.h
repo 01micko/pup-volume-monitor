@@ -1,6 +1,9 @@
 //common-includes.h
 //Common library header file
 
+#ifndef __LIBPUPVM_COMMON_H
+#define __LIBPUPVM_COMMON_H
+
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/un.h>
@@ -20,3 +23,4 @@
 #undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN "pup-volume-monitor"
 
+#endif

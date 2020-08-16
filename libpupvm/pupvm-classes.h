@@ -1,9 +1,4 @@
-//pupvm-classes.c or pupvm-classes.h
 //Common definitions for the pup_volume_monitor
-
-#ifndef PUP_VM_H_INSIDE
-#	include "common-includes.h"
-#else // !PUP_VM_H_INSIDE
 
 typedef struct _PupVMMonitor PupVMMonitor;
 
@@ -68,17 +63,12 @@ typedef struct
 } PupDeviceClass;
 
 //FILE_HEADER_SUBST:gobject_macro_gen PUP_DEVICE PupDevice pup_device pup
-#define PUP_TYPE_DEVICE (pup_device_get_type())
-#define PUP_DEVICE(ptr) \
-		(G_TYPE_CHECK_INSTANCE_CAST((ptr), PUP_TYPE_DEVICE, PupDevice))
-#define PUP_IS_DEVICE(ptr) \
-		(G_TYPE_CHECK_INSTANCE_TYPE((ptr), PUP_TYPE_DEVICE))
-#define PUP_DEVICE_CLASS(ptr) \
-		(G_TYPE_CHECK_CLASS_CAST((ptr), PUP_TYPE_DEVICE, PupDeviceClass))
-#define PUP_IS_DEVICE_CLASS(ptr) \
-		(G_TYPE_CHECK_CLASS_TYPE((ptr), PUP_TYPE_DEVICE))
-#define PUP_DEVICE_GET_CLASS(ptr) \
-		(G_TYPE_INSTANCE_GET_CLASS((ptr), PUP_TYPE_DEVICE, PupDeviceClass))
+#define PUP_TYPE_DEVICE       (pup_device_get_type())
+#define PUP_DEVICE(ptr)       (G_TYPE_CHECK_INSTANCE_CAST((ptr), PUP_TYPE_DEVICE, PupDevice))
+#define PUP_IS_DEVICE(ptr)    (G_TYPE_CHECK_INSTANCE_TYPE((ptr), PUP_TYPE_DEVICE))
+#define PUP_DEVICE_CLASS(ptr) (G_TYPE_CHECK_CLASS_CAST((ptr), PUP_TYPE_DEVICE, PupDeviceClass))
+#define PUP_IS_DEVICE_CLASS(ptr)  (G_TYPE_CHECK_CLASS_TYPE((ptr), PUP_TYPE_DEVICE))
+#define PUP_DEVICE_GET_CLASS(ptr) (G_TYPE_INSTANCE_GET_CLASS((ptr), PUP_TYPE_DEVICE, PupDeviceClass))
 #define PUP_DEVICE_NAME "PupDevice"
 
 typedef struct 
@@ -95,10 +85,10 @@ typedef enum
 } PupCategory;
 
 //Warning: Changing these values implies protocol change
-#	define PUP_DEVICE_EVENT_NONE "none"
-#	define PUP_DEVICE_EVENT_ADD "add"
-#	define PUP_DEVICE_EVENT_CHANGE "change"
-#	define PUP_DEVICE_EVENT_REMOVE "remove"
+#define PUP_DEVICE_EVENT_NONE "none"
+#define PUP_DEVICE_EVENT_ADD "add"
+#define PUP_DEVICE_EVENT_CHANGE "change"
+#define PUP_DEVICE_EVENT_REMOVE "remove"
 
 typedef enum 
 {
@@ -167,7 +157,6 @@ typedef enum
 	PUP_OPERATION_RESPONSE_UNHANDLED = 1,
 	PUP_OPERATION_RESPONSE_ABORT = 2,
 	PUP_OPERATION_RESPONSE_PASSWORD = 3,
-
 	PUP_OPERATION_RESPONSE_SHIFT = 4 //Value to add to response number
 } PupOperationResponse;
 
@@ -192,18 +181,12 @@ typedef struct
 	PupOperationFunc umount;
 } PupVolumeClass;
 
-//FILE_HEADER_SUBST:gobject_macro_gen PUP_VOLUME PupVolume pup_volume pup
-#define PUP_TYPE_VOLUME (pup_volume_get_type())
-#define PUP_VOLUME(ptr) \
-		(G_TYPE_CHECK_INSTANCE_CAST((ptr), PUP_TYPE_VOLUME, PupVolume))
-#define PUP_IS_VOLUME(ptr) \
-		(G_TYPE_CHECK_INSTANCE_TYPE((ptr), PUP_TYPE_VOLUME))
-#define PUP_VOLUME_CLASS(ptr) \
-		(G_TYPE_CHECK_CLASS_CAST((ptr), PUP_TYPE_VOLUME, PupVolumeClass))
-#define PUP_IS_VOLUME_CLASS(ptr) \
-		(G_TYPE_CHECK_CLASS_TYPE((ptr), PUP_TYPE_VOLUME))
-#define PUP_VOLUME_GET_CLASS(ptr) \
-		(G_TYPE_INSTANCE_GET_CLASS((ptr), PUP_TYPE_VOLUME, PupVolumeClass))
+#define PUP_TYPE_VOLUME       (pup_volume_get_type())
+#define PUP_VOLUME(ptr)       (G_TYPE_CHECK_INSTANCE_CAST((ptr), PUP_TYPE_VOLUME, PupVolume))
+#define PUP_IS_VOLUME(ptr)    (G_TYPE_CHECK_INSTANCE_TYPE((ptr), PUP_TYPE_VOLUME))
+#define PUP_VOLUME_CLASS(ptr) (G_TYPE_CHECK_CLASS_CAST((ptr), PUP_TYPE_VOLUME, PupVolumeClass))
+#define PUP_IS_VOLUME_CLASS(ptr)  (G_TYPE_CHECK_CLASS_TYPE((ptr), PUP_TYPE_VOLUME))
+#define PUP_VOLUME_GET_CLASS(ptr) (G_TYPE_INSTANCE_GET_CLASS((ptr), PUP_TYPE_VOLUME, PupVolumeClass))
 #define PUP_VOLUME_NAME "PupVolume"
 
 typedef enum
@@ -219,11 +202,11 @@ typedef enum
 	PUP_VOLUME_MNT_FLAGS = PUP_VOLUME_MNTD_READ_ONLY | PUP_VOLUME_MNTD_SYSTEM
 } PupVolumeFlags;
 
-#	define PUP_VOLUME_EVENT_MOUNT "mount"
-#	define PUP_VOLUME_EVENT_UMOUNT "umount"
-#	define PUP_VOLUME_EVENT_REMOUNT "remount"
+#define PUP_VOLUME_EVENT_MOUNT "mount"
+#define PUP_VOLUME_EVENT_UMOUNT "umount"
+#define PUP_VOLUME_EVENT_REMOUNT "remount"
 
-#	define PUP_VOLUME_MOUNT_CMD(vol) "mount", \
+#define PUP_VOLUME_MOUNT_CMD(vol) "mount", \
 		(vol)->parent.sysname, (vol)->unix_dev, \
 		PUP_STR_NULL_IS_BLANK((vol)->fstype), \
 		PUP_STR_NULL_IS_BLANK((vol)->mntpnt), \
@@ -231,7 +214,7 @@ typedef enum
 		PUP_STR_NULL_IS_BLANK((vol)->uuid), \
 		NULL
 
-#	define PUP_VOLUME_UMOUNT_CMD(vol) "umount", \
+#define PUP_VOLUME_UMOUNT_CMD(vol) "umount", \
 		(vol)->parent.sysname, (vol)->unix_dev, \
 		PUP_STR_NULL_IS_BLANK((vol)->fstype), \
 		PUP_STR_NULL_IS_BLANK((vol)->mntpnt), \
@@ -262,18 +245,12 @@ typedef struct
 
 } PupDriveClass;
 
-//FILE_HEADER_SUBST:gobject_macro_gen PUP_DRIVE PupDrive pup_drive pup
-#define PUP_TYPE_DRIVE (pup_drive_get_type())
-#define PUP_DRIVE(ptr) \
-		(G_TYPE_CHECK_INSTANCE_CAST((ptr), PUP_TYPE_DRIVE, PupDrive))
-#define PUP_IS_DRIVE(ptr) \
-		(G_TYPE_CHECK_INSTANCE_TYPE((ptr), PUP_TYPE_DRIVE))
-#define PUP_DRIVE_CLASS(ptr) \
-		(G_TYPE_CHECK_CLASS_CAST((ptr), PUP_TYPE_DRIVE, PupDriveClass))
-#define PUP_IS_DRIVE_CLASS(ptr) \
-		(G_TYPE_CHECK_CLASS_TYPE((ptr), PUP_TYPE_DRIVE))
-#define PUP_DRIVE_GET_CLASS(ptr) \
-		(G_TYPE_INSTANCE_GET_CLASS((ptr), PUP_TYPE_DRIVE, PupDriveClass))
+#define PUP_TYPE_DRIVE       (pup_drive_get_type())
+#define PUP_DRIVE(ptr)       (G_TYPE_CHECK_INSTANCE_CAST((ptr), PUP_TYPE_DRIVE, PupDrive))
+#define PUP_IS_DRIVE(ptr)    (G_TYPE_CHECK_INSTANCE_TYPE((ptr), PUP_TYPE_DRIVE))
+#define PUP_DRIVE_CLASS(ptr) (G_TYPE_CHECK_CLASS_CAST((ptr), PUP_TYPE_DRIVE, PupDriveClass))
+#define PUP_IS_DRIVE_CLASS(ptr)  (G_TYPE_CHECK_CLASS_TYPE((ptr), PUP_TYPE_DRIVE))
+#define PUP_DRIVE_GET_CLASS(ptr) (G_TYPE_INSTANCE_GET_CLASS((ptr), PUP_TYPE_DRIVE, PupDriveClass))
 #define PUP_DRIVE_NAME "PupDrive"
 
 typedef enum
@@ -295,19 +272,12 @@ typedef struct
 	PupOperationFunc volume_umount;
 } PupVMImplVTable;
 
-#endif //PUP_VM_H_INSIDE
 
-/*Everything beyond this is automatically generated*/
 void pup_operation_foreward(PupOperation *operation,PupDevice *target_dev,const gchar *oper_name,const gchar *args);
 void pup_operation_start_suboperation(PupOperation *operation,PupDevice *dev,const gchar *oper_name,const gchar *args,PupOperationTrapFunc func,gpointer user_data);
 void pup_operation_ask_question(PupOperation *operation,const gchar *question,const gchar *choices);
 void pup_operation_ask_password(PupOperation *operation,const gchar *message,GAskPasswordFlags password_flags);
-#if !defined(PUP_VM_H_INSIDE)
-void pup_operation_return(PupOperation *operation,gboolean success,guint g_io_error_code,const gchar *detail_f,...);
-#endif
-#if !(!defined(PUP_VM_H_INSIDE))
-void pup_operation_return(PupOperation *operation,gboolean success,guint g_io_error_code,const gchar *detail_f,...)G_GNUC_PRINTF(4,5);
-#endif
+void pup_operation_return(PupOperation *operation,gboolean success,guint g_io_error_code,const gchar *detail_f,...) G_GNUC_PRINTF(4,5);
 void pup_operation_start(PupOperation *operation,PupDevice *dev);
 gchar *pup_drive_gen_display_name(PupDrive *drv);
 void pup_drive_dup(PupDevice *src,PupDevice *dest);
@@ -315,9 +285,8 @@ void pup_drive_free_mem(PupDevice *dev);
 void pup_drive_display(PupDevice *dev);
 void pup_drive_encode_func(PupDevice *dev,PSDataEncoder *encoder);
 gboolean pup_drive_parse_func(PupDevice *dev,PSDataParser *parser);
-#if !(!defined(PUP_VM_H_INSIDE))
 GType pup_drive_get_type();
-#endif
+
 gchar *pup_volume_gen_display_name(PupVolume *vol);
 gchar *pup_volume_gen_mount_dir(PupVolume *vol);
 void pup_volume_dup(PupDevice *src,PupDevice *dest);
@@ -325,9 +294,8 @@ void pup_volume_free_mem(PupDevice *dev);
 void pup_volume_display(PupDevice *dev);
 void pup_volume_encode_func(PupDevice *dev,PSDataEncoder *encoder);
 gboolean pup_volume_parse_func(PupDevice *dev,PSDataParser *parser);
-#if !(!defined(PUP_VM_H_INSIDE))
 GType pup_volume_get_type();
-#endif
+
 void pup_device_show_hfunc(gpointer key,gpointer value,gpointer dummy);
 void pup_device_show(PupDevice *dev);
 void pup_device_swap_contents(PupDevice *dev1,PupDevice *dev2);
@@ -347,13 +315,7 @@ void pup_device_header_free_data(PupDeviceHeader *header);
 gboolean pup_device_parse_header(PupDeviceHeader *header,PSDataParser *parser);
 void pup_device_class_register_operation(GType type,const gchar *name,gssize class_offset);
 void pup_device_finalize(GObject *instance);
-#if !(!defined(PUP_VM_H_INSIDE))
 GType pup_device_get_type();
-#endif
-#if !defined(PUP_VM_H_INSIDE)
-G_DEFINE_TYPE(PupDevice,pup_device,G_TYPE_OBJECT);
-G_DEFINE_TYPE(PupDrive,pup_drive,PUP_TYPE_DEVICE);
-G_DEFINE_TYPE(PupVolume,pup_volume,PUP_TYPE_DEVICE);
-#endif
+
 extern gboolean pup_vm_is_client;
 extern PupVMImplVTable pup_vm_impl_vtable;

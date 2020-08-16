@@ -1,278 +1,13 @@
-//pupvm-classes.c or pupvm-classes.h
 //Common definitions for the pup_volume_monitor
 
-#ifndef PUP_VM_H_INSIDE
-#	include "common-includes.h"
-#else // !PUP_VM_H_INSIDE
-
-typedef struct _PupVMMonitor PupVMMonitor;
-
-//Device base class
-//No instances of this struct is created
-typedef struct
-{
-	GObject parent;
-
-	gint category;
-	gchar *sysname;
-	
-	volatile gint hold_count;
-} PupDeviceHeaderArea;
-
-/**Structure representing a PupDevice class*/
-typedef struct
-{
-	///Parent instance 
-	GObject parent;
-	
-	///Category id, either PUP_CATEGORY_DRIVE or PUP_CATEGORY_VOLUME
-	gint category;
-	///Unique name that identifies the object, preferably sysfs name
-	gchar *sysname;
-
-	volatile gint hold_count;
-
-	///A string describing icon that should be used
-	gchar *icon_name;
-	///The name by which the device should be displayed
-	gchar *display_name;
-	gboolean constructed;
-	
-	PupVMMonitor *monitor;
-} PupDevice;
-
-/**Class structure*/
-typedef struct
-{
-	//Parent class
-	GObjectClass parent;
-
-	gboolean (*parse_func)
-		(PupDevice *dev, PSDataParser *parser);
-	void (*encode_func)
-		(PupDevice *dev, PSDataEncoder *encoder);
-	///Function used to display attributes of the device, mainly for debugging purposes.
-	///If you override this make sure you call parent class' method before
-	///doing your own processing.
-	void (*display) (PupDevice *dev);
-	///Function used to free all dynamically allocated memory in the device.
-	///You must chain up after performing your own de-allocation.
-	///You may also zero-initialise all instance members.
-	void (*free_contents) (PupDevice *dev);
-	///Function used to copy contents of _src_ into _dest_.
-	///You must call the parent class' method before performing your copying
-	///operation.
-	void (*dup) (PupDevice *src, PupDevice *dest);
-	///The size of the instance. You must set this to sizeof(<YourInstance>)
-	gsize size;
-} PupDeviceClass;
-
-//FILE_HEADER_SUBST:gobject_macro_gen PUP_DEVICE PupDevice pup_device pup
-
-typedef struct 
-{
-	gint category;
-	gchar *sysname;
-} PupDeviceHeader;
-
-typedef enum 
-{
-	PUP_CATEGORY_DRIVE = 1,
-	PUP_CATEGORY_VOLUME = 2,
-	PUP_CATEGORY_ICON = 3
-} PupCategory;
-
-//Warning: Changing these values implies protocol change
-#	define PUP_DEVICE_EVENT_NONE "none"
-#	define PUP_DEVICE_EVENT_ADD "add"
-#	define PUP_DEVICE_EVENT_CHANGE "change"
-#	define PUP_DEVICE_EVENT_REMOVE "remove"
-
-typedef enum 
-{
-	PUP_DEVICE_ADD = 1,
-	PUP_DEVICE_REMOVE = 2,
-	PUP_DEVICE_CHANGE = 3
-} PupDeviceUpdateActions;
-
-typedef struct
-{
-	PupDeviceHeader header;
-	gint action;
-	gchar *detail;
-} PupVMEvent;
-
-
-//Operations
-typedef struct _PupOperation PupOperation;
-///\brief Prototype of the function for handling operations
-typedef void (*PupOperationFunc) (PupDevice *dev, PupOperation *operation);
-///\brief Prototype of the function called when user responds to a question
-typedef void (*PupOperationReplyFunc) (PupDevice *dev,
-                                       PupOperation *operation,
-		                               guint status);
-///\brief Prototype of the function called when user responds to a password prompt
-typedef void (*PupOperationPasswordFunc) (PupDevice *dev,
-                                          PupOperation *operation,
-		                                  guint status, 
-                                          gchar *username,
-                                          gchar *password,
-                                          gchar *domain);
-///\brief Prototype of the function called when a suboperation returns
-typedef void (*PupOperationTrapFunc) (PupDevice *dev,
-                                      PupOperation *operation,
-		                              guint status,
-                                      const gchar *detail,
-                                      gpointer user_data);
-
-typedef void (*PupOperationMsgFunc) (PupOperation *operation,
-                                     PSDataEncoder *encoder);
-///\brief A structure that represents an operation
-struct _PupOperation
-{
-	//Readonly
-	///The device on which operation was called
-	PupDevice *dev;
-	///Name of the operation, i.e the task to carry out
-	gchar *type;
-	///Argument(s) to the operation 
-	gchar *args;
-	//Readwrite
-	///Function called when user replies
-	PupOperationReplyFunc reply_func;
-	//Output trapping
-	PupOperationTrapFunc trap_func;
-	PupOperation *prev_oper;
-	gpointer user_data;
-	//Private
-	PupOperationMsgFunc msg_func;
-	gboolean has_returned;
-};
-
-///\brief Possible return status of a question
-typedef enum 
-{
-	PUP_OPERATION_RESPONSE_UNHANDLED = 1,
-	PUP_OPERATION_RESPONSE_ABORT = 2,
-	PUP_OPERATION_RESPONSE_PASSWORD = 3,
-
-	PUP_OPERATION_RESPONSE_SHIFT = 4 //Value to add to response number
-} PupOperationResponse;
-
-//Class volume: a normal volume
-typedef struct
-{
-	PupDevice parent;
-	gchar *unix_dev;
-	gchar *label;
-	gchar *fstype;
-	gchar *uuid;
-	gchar *drv_sysname;
-	gchar *mntpnt;
-	guint flags;
-} PupVolume;
-
-typedef struct
-{
-	PupDeviceClass parent;
-
-	PupOperationFunc mount;
-	PupOperationFunc umount;
-} PupVolumeClass;
-
-//FILE_HEADER_SUBST:gobject_macro_gen PUP_VOLUME PupVolume pup_volume pup
-
-typedef enum
-{
-	//Warning: Changing these values implies protocol change
-	PUP_VOLUME_IS_MOUNTABLE = 1 << 0,
-	PUP_VOLUME_MNTD_READ_ONLY = 1 << 1,
-	PUP_VOLUME_MNTD_SYSTEM = 1 << 2,
-	PUP_VOLUME_CAN_EJECT = 1 << 3,
-	PUP_VOLUME_SHOULD_AUTOMOUNT = 1 << 4,
-	PUP_VOLUME_OVERRIDE_MNT_INFO = 1 << 5,
-
-	PUP_VOLUME_MNT_FLAGS = PUP_VOLUME_MNTD_READ_ONLY | PUP_VOLUME_MNTD_SYSTEM
-} PupVolumeFlags;
-
-#	define PUP_VOLUME_EVENT_MOUNT "mount"
-#	define PUP_VOLUME_EVENT_UMOUNT "umount"
-#	define PUP_VOLUME_EVENT_REMOUNT "remount"
-
-#	define PUP_VOLUME_MOUNT_CMD(vol) "mount", \
-		(vol)->parent.sysname, (vol)->unix_dev, \
-		PUP_STR_NULL_IS_BLANK((vol)->fstype), \
-		PUP_STR_NULL_IS_BLANK((vol)->mntpnt), \
-		PUP_STR_NULL_IS_BLANK((vol)->label), \
-		PUP_STR_NULL_IS_BLANK((vol)->uuid), \
-		NULL
-
-#	define PUP_VOLUME_UMOUNT_CMD(vol) "umount", \
-		(vol)->parent.sysname, (vol)->unix_dev, \
-		PUP_STR_NULL_IS_BLANK((vol)->fstype), \
-		PUP_STR_NULL_IS_BLANK((vol)->mntpnt), \
-		PUP_STR_NULL_IS_BLANK((vol)->label), \
-		PUP_STR_NULL_IS_BLANK((vol)->uuid), \
-		NULL
-
-typedef enum 
-{
-	PUP_VOLUME_MOUNT = 1,
-	PUP_VOLUME_UMOUNT = 2,
-	PUP_VOLUME_REMOUNT = 3
-} PupVolumeUpdateActions;
-
-//Class drive: a physical drive
-typedef struct
-{
-	PupDevice parent;
-	gchar *unix_dev;
-	gchar *model;
-	gchar *vendor;
-	guint flags;
-} PupDrive;
-
-typedef struct
-{
-	PupDeviceClass parent;
-
-} PupDriveClass;
-
-//FILE_HEADER_SUBST:gobject_macro_gen PUP_DRIVE PupDrive pup_drive pup
-
-typedef enum
-{
-	//Warning: Changing these values implies protocol change
-	PUP_DRIVE_USB = 1 << 0,
-	PUP_DRIVE_REMOVABLE = 1 << 1,
-	PUP_DRIVE_FLASH = 1 << 2,
-	PUP_DRIVE_CAN_EJECT = 1 << 3
-} PupDriveFlags;
-
-//VTable for implementation to be done elsewhere...
-typedef struct
-{
-	//device
-	GDestroyNotify device_release_func;
-	//volume
-	PupOperationFunc volume_mount;
-	PupOperationFunc volume_umount;
-} PupVMImplVTable;
-
-#endif //PUP_VM_H_INSIDE
-
-//FILE_HEADER_END
+#include "common-includes.h"
 
 //VTable for implementation to be done elsewhere...
 PupVMImplVTable pup_vm_impl_vtable;
 gboolean pup_vm_is_client = TRUE;
 
 //Class Device
-#ifndef PUP_VM_H_INSIDE
 G_DEFINE_TYPE(PupDevice, pup_device, G_TYPE_OBJECT);
-#else 
-GType pup_device_get_type();
-#endif
 
 static void pup_device_class_init(PupDeviceClass *klass)
 {
@@ -510,11 +245,7 @@ void pup_device_show_hfunc(gpointer key, gpointer value, gpointer dummy)
 }
 
 //Class Volume
-#ifndef PUP_VM_H_INSIDE
 G_DEFINE_TYPE(PupVolume, pup_volume, PUP_TYPE_DEVICE);
-#else
-GType pup_volume_get_type();
-#endif
 
 static void pup_volume_class_init(PupVolumeClass *klass)
 {
@@ -679,13 +410,9 @@ gchar *pup_volume_gen_display_name(PupVolume *vol)
 
 	return res;
 }
-//Class Drive
 
-#ifndef PUP_VM_H_INSIDE
+//Class Drive
 G_DEFINE_TYPE(PupDrive, pup_drive, PUP_TYPE_DEVICE);
-#else
-GType pup_drive_get_type();
-#endif
 
 static void pup_drive_class_init(PupDriveClass *klass)
 {
@@ -796,7 +523,6 @@ void pup_operation_start(PupOperation *operation, PupDevice *dev)
 	g_signal_emit(dev, signal_id, 0, operation);
 }
 
-#ifndef PUP_VM_H_INSIDE
 void pup_operation_return(PupOperation *operation,
                           gboolean success, guint g_io_error_code,
                           const gchar *detail_f, ...)
@@ -846,11 +572,6 @@ void pup_operation_return(PupOperation *operation,
 		if (backup) pup_device_release(backup);
 	}
 }
-#else // !PUP_VM_H_INSIDE
-void pup_operation_return(PupOperation *operation,
-                          gboolean success, guint g_io_error_code,
-                          const gchar *detail_f, ...) G_GNUC_PRINTF(4, 5);
-#endif //PUP_VM_H_INSIDE
 
 void pup_operation_ask_password(PupOperation *operation, const gchar *message,
                                 GAskPasswordFlags password_flags)

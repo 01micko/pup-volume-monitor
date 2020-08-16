@@ -1,83 +1,8 @@
-//conv.c or conv.h
 //Highlevel organisation of data into conversations
 
-#ifndef PUP_VM_H_INSIDE
-//conv.c
-#	include "common-includes.h"
+#include "common-includes.h"
 
-#else // !PUP_VM_H_INSIDE
-//conv.h
-
-typedef struct
-{
-	GPid process_id;
-	gpointer host_id;
-} PupConvID;
-
-typedef struct
-{
-	GObject parent;
-	PupSock *sock;
-	gulong sorter_cb_tag;
-	gulong hup_cb_tag;
-	GHashTable *self_convs;
-	GHashTable *other_convs;
-	GPid process_id;
-	gboolean assumes_primary;
-	guint32 allocator;
-	gpointer def_cb;
-	gpointer def_cb_data;
-} PupConvMgr;
-
-typedef struct
-{
-	GObjectClass parent;
-} PupConvMgrClass;
-
-//FILE_HEADER_SUBST:gobject_macro_gen PUP_CONV_MGR PupConvMgr pup_conv_mgr pup
-
-typedef struct
-{
-	PupConvMgr *cmgr;
-	PupConvID conv_id;
-	gboolean first;
-	gpointer cb;
-	gpointer cb_data;
-	gboolean closed;
-	gpointer close_cb;
-	gpointer close_cb_data;
-} PupConv;
-
-
-typedef enum 
-{
-	PUP_CONV_NEW = 0,
-	PUP_CONV_MSG = 1,
-	PUP_CONV_END = 2
-} PupConvMsgs;
-
-typedef enum 
-{
-	PUP_CONV_BREAK = 1 << 0,
-	PUP_CONV_FREE = 1 << 1,
-	PUP_CONV_NOREMOVE = 1 << 2
-} PupConvCloseFlags;
-
-typedef void (*PupConvCB) (PupConv *conv, PSDataParser *rcvd_data,
-                           gboolean is_new, gpointer user_data, gpointer conv_user_data);
-
-typedef void (*PupConvCloseCB) (PupConv *conv, gpointer user_data);
-
-#endif // PUP_VM_H_INSIDE
-
-//FILE_HEADER_END
-
-
-#ifndef PUP_VM_H_INSIDE
 G_DEFINE_TYPE(PupConvMgr, pup_conv_mgr, G_TYPE_OBJECT);
-#else
-GType pup_conv_mgr_get_type();
-#endif
 
 static void pup_conv_mgr_class_init(PupConvMgrClass *klass)
 {

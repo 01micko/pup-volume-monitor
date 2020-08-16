@@ -10,9 +10,7 @@
 #define PUP_VM_H
 
 #include <gio/gio.h>
-
 #include <libudev.h>
-
 #include <sys/socket.h>
 
 

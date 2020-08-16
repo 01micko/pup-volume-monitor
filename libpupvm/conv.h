@@ -1,12 +1,4 @@
-//conv.c or conv.h
 //Highlevel organisation of data into conversations
-
-#ifndef PUP_VM_H_INSIDE
-//conv.c
-#	include "common-includes.h"
-
-#else // !PUP_VM_H_INSIDE
-//conv.h
 
 typedef struct
 {
@@ -34,18 +26,12 @@ typedef struct
 	GObjectClass parent;
 } PupConvMgrClass;
 
-//FILE_HEADER_SUBST:gobject_macro_gen PUP_CONV_MGR PupConvMgr pup_conv_mgr pup
-#define PUP_TYPE_CONV_MGR (pup_conv_mgr_get_type())
-#define PUP_CONV_MGR(ptr) \
-		(G_TYPE_CHECK_INSTANCE_CAST((ptr), PUP_TYPE_CONV_MGR, PupConvMgr))
-#define PUP_IS_CONV_MGR(ptr) \
-		(G_TYPE_CHECK_INSTANCE_TYPE((ptr), PUP_TYPE_CONV_MGR))
-#define PUP_CONV_MGR_CLASS(ptr) \
-		(G_TYPE_CHECK_CLASS_CAST((ptr), PUP_TYPE_CONV_MGR, PupConvMgrClass))
-#define PUP_IS_CONV_MGR_CLASS(ptr) \
-		(G_TYPE_CHECK_CLASS_TYPE((ptr), PUP_TYPE_CONV_MGR))
-#define PUP_CONV_MGR_GET_CLASS(ptr) \
-		(G_TYPE_INSTANCE_GET_CLASS((ptr), PUP_TYPE_CONV_MGR, PupConvMgrClass))
+#define PUP_TYPE_CONV_MGR       (pup_conv_mgr_get_type())
+#define PUP_CONV_MGR(ptr)       (G_TYPE_CHECK_INSTANCE_CAST((ptr), PUP_TYPE_CONV_MGR, PupConvMgr))
+#define PUP_IS_CONV_MGR(ptr)    (G_TYPE_CHECK_INSTANCE_TYPE((ptr), PUP_TYPE_CONV_MGR))
+#define PUP_CONV_MGR_CLASS(ptr) (G_TYPE_CHECK_CLASS_CAST((ptr), PUP_TYPE_CONV_MGR, PupConvMgrClass))
+#define PUP_IS_CONV_MGR_CLASS(ptr)  (G_TYPE_CHECK_CLASS_TYPE((ptr), PUP_TYPE_CONV_MGR))
+#define PUP_CONV_MGR_GET_CLASS(ptr) (G_TYPE_INSTANCE_GET_CLASS((ptr), PUP_TYPE_CONV_MGR, PupConvMgrClass))
 #define PUP_CONV_MGR_NAME "PupConvMgr"
 
 typedef struct
@@ -80,9 +66,7 @@ typedef void (*PupConvCB) (PupConv *conv, PSDataParser *rcvd_data,
 
 typedef void (*PupConvCloseCB) (PupConv *conv, gpointer user_data);
 
-#endif // PUP_VM_H_INSIDE
 
-/*Everything beyond this is automatically generated*/
 void pup_conv_send_message(PupConv *conv,PSDataEncoder *data);
 void pup_conv_set_close_callback(PupConv *conv,PupConvCloseCB callback,gpointer user_data);
 void pup_conv_set_msg_queue(PupConv *conv,GQueue *msg_queue);
@@ -99,9 +83,4 @@ void pup_conv_mgr_hup_cb(PupSock *sock,gpointer data);
 void pup_conv_mgr_sorter_cb(PupSock *sock,PupSockData *data,gpointer user_data);
 PupConvMgr *pup_conv_mgr_new(PupSock *sock,PupConvCB def_callback,gpointer user_data);
 void pup_conv_mgr_finalize(GObject *instance);
-#if !(!defined(PUP_VM_H_INSIDE))
 GType pup_conv_mgr_get_type();
-#endif
-#if !defined(PUP_VM_H_INSIDE)
-G_DEFINE_TYPE(PupConvMgr,pup_conv_mgr,G_TYPE_OBJECT);
-#endif

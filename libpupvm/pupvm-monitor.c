@@ -1,66 +1,11 @@
-//pupvm-monitor.c or pupvm-monitor.h
 //The volume monitor, server side
 
-#ifndef PUP_VM_H_INSIDE
-//pupvm-monitor.c
-#	include "common-includes.h"
+#include "common-includes.h"
 
-#else // !PUP_VM_H_INSIDE
-//pupvm-monitor.h
+G_DEFINE_TYPE(PupVMMonitor, pup_vm_monitor, G_TYPE_OBJECT);
 
-//icons
-typedef struct
-{
-	gchar *devnode;
-	gchar *mntpnt;
-	guint flags;
-} PupMntEntry;
+static PupVMMonitor *stored_monitor = NULL;
 
-struct _PupVMMonitor
-{
-	GObject parent;
-
-	GHashTable *drives;
-	GHashTable *volumes;
-
-	gboolean udev_cancel;
-
-	GHashTable *mounts;
-	gchar *mtab_file;
-
-	GRecMutex lock;
-};
-
-typedef struct 
-{
-	GObjectClass parent;
-	//Device management
-	void (*device_event_cb) (PupVMMonitor *monitor, PupDevice *dev,
-	                         guint event, const gchar *detail_if_any);
-	//Udev events
-	void (*udev_event) (PupVMMonitor *monitor, struct udev_device *dev);
-	//Signals
-	guint udev_signal_id;
-	guint udev_after_signal_id;
-	guint device_event_signal_id;
-	guint mounts_check_signal_id;
-	//icons
-} PupVMMonitorClass;
-
-typedef void (*PupUdevEventCB) (PupVMMonitor *monitor,
-                                struct udev_device *dev, gpointer user_data);
-
-typedef void (*PupDeviceEventCB) (PupVMMonitor *monitor,
-                                  PupDevice *dev,
-                                  guint action,
-                                  const gchar *detail,
-                                  gpointer user_data);
-
-//FILE_HEADER_SUBST:gobject_macro_gen PUP_VM_MONITOR PupVMMonitor pup_vm_monitor pup
-
-#endif // PUP_VM_H_INSIDE
-
-//FILE_HEADER_END
 
 void pup_mnt_entry_free(PupMntEntry *entry)
 {
@@ -69,16 +14,6 @@ void pup_mnt_entry_free(PupMntEntry *entry)
 	g_free(entry->mntpnt);
 	g_slice_free(PupMntEntry, entry);
 }
-
-
-
-#ifndef PUP_VM_H_INSIDE
-G_DEFINE_TYPE(PupVMMonitor, pup_vm_monitor, G_TYPE_OBJECT);
-#else
-GType pup_vm_monitor_get_type();
-#endif
-
-static PupVMMonitor *stored_monitor = NULL;
 
 static void pup_vm_monitor_class_init(PupVMMonitorClass *klass)
 {	
