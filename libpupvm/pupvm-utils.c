@@ -112,7 +112,7 @@ pup_vm_nullify_struct_func(pointer, sizeof(type))
 //Filling structures with zeroes
 void pup_vm_nullify_struct_func(gpointer data, gsize len)
 {
-	int i;
+	gsize i;
 	for (i = 0; i < len; i++)
 		((gchar *) data)[i] = 0;
 }
@@ -142,7 +142,7 @@ gchar *pup_strrpl(const gchar *string, gchar **targets, gchar **substs)
 	PupStrrplStack *stack_end = NULL;
 
 	//Assertions
-	gint i, j, new_strlen;
+	gsize i, j, new_strlen;
 	if (! string) return NULL;
 
 	new_strlen = strlen(string);
@@ -634,7 +634,8 @@ typedef struct
 	gboolean success;
 } Launcher;
 
-static gboolean pup_vm_spawn_output_cb(GIOChannel *source, GIOCondition condition, 
+static gboolean      /* GIOFunc */
+pup_vm_spawn_output_cb (GIOChannel *source, GIOCondition condition, 
                                 Launcher *data)
 {
 	char buf[256];
@@ -655,7 +656,8 @@ static gboolean pup_vm_spawn_output_cb(GIOChannel *source, GIOCondition conditio
 	return TRUE;
 }
 
-static gboolean pup_vm_spawn_wait_cb(GPid pid, gint status, Launcher *data)
+static gboolean /* GChildWatchFunc */
+pup_vm_spawn_wait_cb (GPid pid, gint status, Launcher *data)
 {
 	data->exit_status = WEXITSTATUS(status);
 	g_main_loop_quit(data->loop);
@@ -688,22 +690,22 @@ gboolean pup_vm_spawn_cmd_sync(gchar **argv, gchar **envp,
 	                       g_io_channel_get_flags(data.stdout_fd) | G_IO_FLAG_NONBLOCK,
 	                       NULL);
 	out_src = g_io_create_watch(data.stdout_fd, G_IO_IN);
-	g_source_attach(out_src, data.ctx);
-	g_source_set_callback(out_src, (GSourceFunc) pup_vm_spawn_output_cb, &data,
-	                      NULL);
+	g_source_attach (out_src, data.ctx); //GIOFunc
+	g_source_set_callback (out_src, G_SOURCE_FUNC(pup_vm_spawn_output_cb), &data,
+	                       NULL);
 
 	data.stderr_fd = g_io_channel_unix_new(err_fd);
 	g_io_channel_set_flags(data.stderr_fd,
 	                       g_io_channel_get_flags(data.stderr_fd) | G_IO_FLAG_NONBLOCK,
 	                       NULL);
 	err_src = g_io_create_watch(data.stderr_fd, G_IO_IN);
-	g_source_attach(err_src, data.ctx);
-	g_source_set_callback(err_src, (GSourceFunc) pup_vm_spawn_output_cb, &data,
-	                      NULL);
+	g_source_attach (err_src, data.ctx); //GIOFunc
+	g_source_set_callback (err_src, G_SOURCE_FUNC(pup_vm_spawn_output_cb), &data,
+	                       NULL);
 
 	child_src = g_child_watch_source_new(pidof_child);
-	g_source_attach(child_src, data.ctx);
-	g_source_set_callback(child_src, (GSourceFunc) pup_vm_spawn_wait_cb, &data,
+	g_source_attach (child_src, data.ctx); //GChildWatchFunc
+	g_source_set_callback (child_src, G_SOURCE_FUNC(pup_vm_spawn_wait_cb), &data,
 	                      NULL);
 
 	data.success = TRUE;

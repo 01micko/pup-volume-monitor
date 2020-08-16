@@ -15,7 +15,16 @@
 
 #include <sys/socket.h>
 
-#if ! GLIB_CHECK_VERSION(2, 32, 0)
+
+// GLIB < 2.58
+#if ! GLIB_CHECK_VERSION (2, 58, 0)
+#define G_SOURCE_FUNC(f) ((GSourceFunc) (void (*)(void)) (f))
+#endif
+
+// GLIB < 2.32
+#if ! GLIB_CHECK_VERSION (2, 32, 0)
+#define G_SOURCE_REMOVE   FALSE
+#define G_SOURCE_CONTINUE TRUE
 #define g_hash_table_add(ht, key) g_hash_table_replace(ht, key, key)
 /* http://lists.geany.org/pipermail/github-comments/2016-January/002026.html */
 #define g_hash_table_contains(ht, key) g_hash_table_lookup_extended(ht, key, NULL, NULL)
@@ -28,6 +37,7 @@
 #define g_thread_new(name,func,data) g_thread_create(func,data,TRUE,NULL)
 #define g_thread_try_new(name,func,data,error) g_thread_create(func,data,TRUE,error)
 #endif
+
 
 G_BEGIN_DECLS
 
