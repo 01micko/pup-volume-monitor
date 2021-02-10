@@ -6,25 +6,19 @@
 //Check whether udev device is a drive
 gboolean pup_drive_assert(struct udev_device *dev)
 {
-	const gchar *devtype = udev_device_get_devtype(dev);
+	const char * devtype = udev_device_get_devtype (dev);
 
-	if (devtype)
+	if ((devtype) && (strcmp(devtype, "disk") == 0))
 	{
-		if (strcmp(devtype, "disk") == 0)
+		//Filter out loop and swap devices
+		const char * sysname = udev_device_get_sysname (dev);
+		if (sysname
+		    && !strstr(sysname, "loop")
+		    && !strstr(sysname, "swap"))
 		{
-			//Filter out loop and swap devices
-			const gchar *sysname = udev_device_get_sysname(dev);
-			if (sysname)
-			{
-				if (strstr(sysname, "loop")
-					|| strstr(sysname, "swap"))
-					return FALSE;
-				else
-					return TRUE;
-			}
+			return TRUE;
 		}
 	}
-
 	return FALSE;
 }
 
@@ -54,9 +48,9 @@ void pup_drive_update(PupDrive *drive, struct udev_device *dev)
 			drive->flags |= PUP_DRIVE_USB;
 		//test for removable drive 
 		const gchar *removable = udev_device_get_sysattr_value(dev, "removable");
-		if (removable)
-			if (removable[0] != '0')
-				drive->flags |= PUP_DRIVE_REMOVABLE;
+		if (removable && *removable) {
+			drive->flags |= PUP_DRIVE_REMOVABLE;
+		}
 		//test for flash drive
 		gchar *test_file = g_strconcat("/sys",
 			                           udev_device_get_devpath(dev),
@@ -67,28 +61,20 @@ void pup_drive_update(PupDrive *drive, struct udev_device *dev)
 		g_free(test_file);
 	}
 	//icon
+	const char * icon;
 	if (drive->flags & PUP_DRIVE_FLASH)
 	{
-		if (drive->flags & PUP_DRIVE_USB)
-		{
-			PUP_DEVICE(drive)->icon_name = g_strdup(PUP_ICON_USBFLASH);
+		icon = PUP_ICON_FLASH;
+		if (drive->flags & PUP_DRIVE_USB) {
+			icon = PUP_ICON_USBFLASH;
 		}
-		else
-		{
-			PUP_DEVICE(drive)->icon_name = g_strdup(PUP_ICON_FLASH);
-		}
-	}
-	else
-	{
-		if (drive->flags & PUP_DRIVE_REMOVABLE)
-		{
-			PUP_DEVICE(drive)->icon_name = g_strdup(PUP_ICON_USBHDD);
-		}
-		else
-		{
-			PUP_DEVICE(drive)->icon_name = g_strdup(PUP_ICON_HDD);
+	} else {
+		icon = PUP_ICON_HDD;
+		if (drive->flags & PUP_DRIVE_REMOVABLE) {
+			icon = PUP_ICON_USBHDD;
 		}
 	}
+	PUP_DEVICE(drive)->icon_name = g_strdup (icon);
 }
 
 //Volume probing
@@ -179,30 +165,20 @@ gboolean pup_volume_assert(struct udev_device *dev, blkid_probe *probe_return)
 	}
 
 	//If reached here, means a block device, checking whether it has a filesystem
-	gchar *type = NULL;
+	const char * type = NULL;
 	blkid_do_safeprobe(probe);
-	if ((blkid_probe_lookup_value(probe, "TYPE", (const gchar **) &type, NULL) == 0) ? type : FALSE)
+	if (blkid_probe_lookup_value (probe, "TYPE", &type, NULL) == 0)
 	{
-		//Filter out swap partitions
-		int res = strcmp(type, "swap");
-		//free(type);
-		if (res)
-		{
-			//mountable volume
-			if (probe_return) *probe_return = probe;
+		if (strcmp(type, "swap") != 0) //Filter out swap partitions
+		{ //mountable volume
+			if (probe_return) {
+				*probe_return = probe;
+			}
 			return TRUE;
 		}
-		else
-		{
-			blkid_free_probe(probe);
-			return FALSE;
-		}
 	}
-	else
-	{
-		blkid_free_probe(probe);
-		return FALSE;
-	}
+	blkid_free_probe(probe);
+	return FALSE;
 }
 
 void pup_volume_update_from_blkid_probe(PupVolume *volume,
@@ -210,23 +186,20 @@ void pup_volume_update_from_blkid_probe(PupVolume *volume,
                                         blkid_probe probe)
 {
 	volume->unix_dev = pup_guess_devnode(dev);
-	
-	if (blkid_probe_lookup_value(probe, "TYPE",
-	                             (const char **) &(volume->fstype), NULL) == 0)
-		volume->fstype = g_strdup(volume->fstype);
-	else
-		volume->fstype = NULL;
-	if (blkid_probe_lookup_value(probe, "LABEL",
-	                             (const char **) &(volume->label), NULL) == 0)
-		volume->label = g_strdup(volume->label);
-	else
-		volume->label = NULL;
-	if (blkid_probe_lookup_value(probe, "UUID",
-	                             (const char **) &(volume->uuid), NULL) == 0)
-		volume->uuid = g_strdup(volume->uuid);
-	else
-		volume->uuid = NULL;
+	volume->fstype = NULL;
+	volume->label = NULL;
+	volume->uuid = NULL;
+	const char * str;
 
+	if (blkid_probe_lookup_value (probe, "TYPE", &str, NULL) == 0) {
+		volume->fstype = g_strdup (str);
+	}
+	if (blkid_probe_lookup_value (probe, "LABEL", &str, NULL) == 0) {
+		volume->label = g_strdup (str);
+	}
+	if (blkid_probe_lookup_value (probe, "UUID", &str, NULL) == 0) {
+		volume->uuid = g_strdup (str);
+	}
 	PupDevice *device = PUP_DEVICE(volume);
 	device->display_name = pup_volume_gen_display_name(volume);
 }
@@ -234,16 +207,13 @@ void pup_volume_update_from_blkid_probe(PupVolume *volume,
 struct udev_device *pup_volume_search_for_drive(struct udev_device *dev)
 {
 	struct udev_device *drv_dev = dev;
-	if (! pup_drive_assert(dev))
+	if (! pup_drive_assert(dev)) {
 		drv_dev = udev_device_get_parent(dev);
-	if (! pup_drive_assert(drv_dev))
-	{
-		//if (volume) volume->drv_sysname = NULL;
+	}
+	if (! pup_drive_assert(drv_dev)) {
 		return NULL;
 	}
 
-	//Now drv_dev is our drive.
-	//if (volume) volume->drv_sysname = g_strdup(udev_device_get_sysname(drv_dev));
 	return drv_dev;
 }
 
@@ -256,8 +226,7 @@ void pup_volume_set_icon(PupVolume *volume, PupVMMonitor *monitor)
 	                                        TRUE);
 	if (drive)
 	{
-		PUP_DEVICE(volume)->icon_name
-			= g_strdup(PUP_DEVICE(drive)->icon_name);
+		PUP_DEVICE(volume)->icon_name = g_strdup(PUP_DEVICE(drive)->icon_name);
 		g_object_unref(drive);
 	}
 	else
