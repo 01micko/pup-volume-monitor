@@ -261,17 +261,27 @@ static void
 pup_drive_process_event (PupVMMonitor *monitor, struct udev_device *dev,
                              gboolean process_change)
 {
-	PupDrive *drive = pup_vm_monitor_lookup_drive
-		(monitor, udev_device_get_sysname(dev), TRUE);
+	PupDrive *drive = pup_vm_monitor_lookup_drive (monitor,
+	                                               udev_device_get_sysname(dev),
+	                                               TRUE);
+	// driveb: try to workaround a failed null test (drive == NULL) in recent 64 bit os'es
+	//         there is no way to explain this using pure logic
+	gboolean driveb = drive ? TRUE : FALSE;
+	char nil[50];
+	snprintf (nil, sizeof(nil), "%p", drive);
+	if (strcmp (nil, "(nil)") == 0) {
+		driveb = FALSE;
+	}
 
 	//Filter out plugin-handled devices
 	if (G_TYPE_FROM_INSTANCE(drive) != PUP_TYPE_DRIVE)
 	{
 		//For now do nothing
 	}
+
 	if (g_strcmp0(udev_device_get_action(dev), "remove") == 0)
 	{
-		if (drive)
+		if (driveb == TRUE)
 		{
 			pup_vm_monitor_remove_device(monitor, PUP_DEVICE(drive));
 			g_object_unref(drive);
@@ -279,7 +289,7 @@ pup_drive_process_event (PupVMMonitor *monitor, struct udev_device *dev,
 	}
 	else
 	{
-		if (drive)
+		if (driveb == TRUE)
 		{
 			if (process_change)
 			{
@@ -322,7 +332,6 @@ pup_server_monitor_probe_thread_func (struct udev_device *dev, PupVMMonitor *mon
 	if (pup_drive_test_optical(dev)) return;
 	//Filter out loopback drives
 	
-	
 	//Check for drive 
 	if (pup_drive_assert(dev))
 	{
@@ -330,8 +339,18 @@ pup_server_monitor_probe_thread_func (struct udev_device *dev, PupVMMonitor *mon
 	}
 
 	//Check for volume
-	PupVolume *volume = pup_vm_monitor_lookup_volume
-		(monitor, udev_device_get_sysname(dev), TRUE);
+	PupVolume * volume;
+	volume = pup_vm_monitor_lookup_volume (monitor,
+	                                       udev_device_get_sysname(dev), TRUE);
+	// volumeb: try to workaround a failed null test (volume == NULL) in recent 64 bit os'es
+	//          there is no way to explain this using pure logic
+	gboolean volumeb = volume ? TRUE : FALSE;
+	char nil[50];
+	snprintf (nil, sizeof(nil), "%p", volume);
+	if (strcmp (nil, "(nil)") == 0) {
+		volumeb = FALSE;
+	}
+
 	//Don't process if volume belongs to a plugin
 	if (G_TYPE_FROM_INSTANCE(volume) != PUP_TYPE_VOLUME)
 	{
@@ -339,7 +358,7 @@ pup_server_monitor_probe_thread_func (struct udev_device *dev, PupVMMonitor *mon
 	}
 	if (g_strcmp0(udev_device_get_action(dev), "remove") == 0)
 	{
-		if (volume)
+		if (volumeb == TRUE)
 		{
 			pup_vm_monitor_remove_device(monitor, PUP_DEVICE(volume));
 			g_object_unref(volume);
@@ -350,16 +369,13 @@ pup_server_monitor_probe_thread_func (struct udev_device *dev, PupVMMonitor *mon
 		//Search for relevent drive if any
 		struct udev_device *drv_dev = pup_volume_search_for_drive(dev);
 		
-		
 		blkid_probe probe;
 		if (pup_volume_assert(dev, &probe))
 		{
-			gpointer old_volume = (gpointer) volume;
 			PupMntEntry *mnt_entry;
-			if (volume)
+			if (volumeb == TRUE)
 			{
 				pup_device_clear_data(PUP_DEVICE(volume));
-
 			}
 			else
 			{
@@ -388,7 +404,7 @@ pup_server_monitor_probe_thread_func (struct udev_device *dev, PupVMMonitor *mon
 			pup_volume_update_mount(volume, mnt_entry);
 			if (mnt_entry) pup_mnt_entry_free(mnt_entry);
 
-			if (old_volume)
+			if (volumeb == TRUE)
 			{
 				pup_vm_monitor_copy_back_device(monitor, PUP_DEVICE(volume),
 				                                NULL);
