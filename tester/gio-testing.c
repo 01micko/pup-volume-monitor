@@ -22,6 +22,7 @@ int main(int argc, char *argv[])
 {
 	GVolumeMonitor *monitor;
 	GList *volumes, *iter;
+	GVolume * vol;
 	
 #if !GLIB_CHECK_VERSION(2, 36, 0) //g_type_init() was deprecated in 2.36
 	g_type_init();
@@ -36,15 +37,13 @@ int main(int argc, char *argv[])
 	
 	for (iter = g_list_first(volumes); iter != NULL; iter = iter->next)
 	{
-		printf("%s: label=\"%s\", uuid=\"%s\"\n",
-				g_volume_get_identifier((GVolume *) iter->data, 
-						G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE),
-				g_volume_get_identifier((GVolume *) iter->data, 
-						G_VOLUME_IDENTIFIER_KIND_LABEL),
-				g_volume_get_identifier((GVolume *) iter->data, 
-						G_VOLUME_IDENTIFIER_KIND_UUID));
-		g_object_unref(iter->data);
-		g_object_unref(iter->data); //Torture test
+		vol = G_VOLUME (iter->data);
+		printf ("%s: label=\"%s\", uuid=\"%s\"\n",
+		        g_volume_get_identifier (vol, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE),
+		        g_volume_get_identifier (vol, G_VOLUME_IDENTIFIER_KIND_LABEL),
+		        g_volume_get_identifier (vol, G_VOLUME_IDENTIFIER_KIND_UUID));
+		g_object_unref (vol);
+		g_object_unref (vol); //Torture test
 	}
 	g_list_free(volumes);
 	
@@ -54,35 +53,36 @@ int main(int argc, char *argv[])
 	
 	for (iter = g_list_first(volumes); iter != NULL; iter = iter->next)
 	{
-		printf("%s: label=\"%s\", uuid=\"%s\"\n",
-				g_volume_get_identifier((GVolume *) iter->data, 
-						G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE),
-				g_volume_get_identifier((GVolume *) iter->data, 
-						G_VOLUME_IDENTIFIER_KIND_LABEL),
-				g_volume_get_identifier((GVolume *) iter->data, 
-						G_VOLUME_IDENTIFIER_KIND_UUID));
-		g_object_unref(iter->data);
+		vol = G_VOLUME (iter->data);
+		printf ("%s: label=\"%s\", uuid=\"%s\"\n",
+		        g_volume_get_identifier (vol, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE),
+		        g_volume_get_identifier (vol, G_VOLUME_IDENTIFIER_KIND_LABEL),
+		        g_volume_get_identifier (vol, G_VOLUME_IDENTIFIER_KIND_UUID));
+		g_object_unref (vol);
 	}
 	g_list_free(volumes);
 	
 	//Testing drives
+
+	puts("\nTesting drives");
 	GList *drives = g_volume_monitor_get_connected_drives(monitor);
 	for (iter = g_list_first(drives); iter != NULL; iter = iter->next)
 	{
 		GList *iter2;
-		printf("%s: \n", g_drive_get_name((GDrive *) iter->data));
-		volumes = g_drive_get_volumes((GDrive *) iter->data);
+		char * drive_name = g_drive_get_name (G_DRIVE (iter->data));
+		printf("%s: \n", drive_name);
+		g_free (drive_name);
+
+		volumes = g_drive_get_volumes ((GDrive *) iter->data);
 		for (iter2 = g_list_first(volumes); iter2 != NULL; iter2 = iter2->next)
 		{
-			printf("\t%s: label=\"%s\", uuid=\"%s\"\n",
-					g_volume_get_identifier((GVolume *) iter2->data, 
-							G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE),
-					g_volume_get_identifier((GVolume *) iter2->data, 
-							G_VOLUME_IDENTIFIER_KIND_LABEL),
-					g_volume_get_identifier((GVolume *) iter2->data, 
-							G_VOLUME_IDENTIFIER_KIND_UUID));
-			g_object_unref(iter2->data);
-			g_object_unref(iter2->data); //Torture test
+			vol = G_VOLUME (iter2->data);
+			printf ("\t%s: label=\"%s\", uuid=\"%s\"\n",
+			        g_volume_get_identifier (vol, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE),
+			        g_volume_get_identifier (vol, G_VOLUME_IDENTIFIER_KIND_LABEL),
+			        g_volume_get_identifier (vol, G_VOLUME_IDENTIFIER_KIND_UUID));
+			g_object_unref (vol);
+			g_object_unref (vol); //Torture test
 		}
 		g_list_free(volumes);
 		
@@ -91,23 +91,25 @@ int main(int argc, char *argv[])
 	g_list_free(drives);
 	
 	//Again...
+	puts ("");
 	drives = g_volume_monitor_get_connected_drives(monitor);
 	for (iter = g_list_first(drives); iter != NULL; iter = iter->next)
 	{
 		GList *iter2;
-		printf("%s: \n", g_drive_get_name((GDrive *) iter->data));
+		char * drive_name = g_drive_get_name (G_DRIVE (iter->data));
+		printf("%s: \n", drive_name);
+		g_free (drive_name);
+
 		volumes = g_drive_get_volumes((GDrive *) iter->data);
 		for (iter2 = g_list_first(volumes); iter2 != NULL; iter2 = iter2->next)
 		{
-			printf("\t%s: label=\"%s\", uuid=\"%s\"\n",
-					g_volume_get_identifier((GVolume *) iter2->data, 
-							G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE),
-					g_volume_get_identifier((GVolume *) iter2->data, 
-							G_VOLUME_IDENTIFIER_KIND_LABEL),
-					g_volume_get_identifier((GVolume *) iter2->data, 
-							G_VOLUME_IDENTIFIER_KIND_UUID));
-			g_object_unref(iter2->data);
-			g_object_unref(iter2->data);
+			vol = G_VOLUME (iter2->data);
+			printf ("\t%s: label=\"%s\", uuid=\"%s\"\n",
+			        g_volume_get_identifier (vol, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE),
+			        g_volume_get_identifier (vol, G_VOLUME_IDENTIFIER_KIND_LABEL),
+			        g_volume_get_identifier (vol, G_VOLUME_IDENTIFIER_KIND_UUID));
+			g_object_unref (vol);
+			g_object_unref (vol);
 		}
 		g_list_free(volumes);
 		
