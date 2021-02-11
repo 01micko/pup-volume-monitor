@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.50])
-AC_INIT([pup-volume-monitor],[0.1.17],[BUG-REPORT-ADDRESS])
+AC_INIT([pup-volume-monitor],[0.2w],[BUG-REPORT-ADDRESS])
 AC_CONFIG_SRCDIR([libpupvm/pupvm-plugin.h])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([-Wall foreign silent-rules])
