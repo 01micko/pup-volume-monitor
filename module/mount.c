@@ -1,38 +1,10 @@
+//mount.c
 //GMount class implementation: PupMount
 
-#ifndef PUP_VM_H_INSIDE
-//mount.c
-#	include "common.h"
+#include "common.h"
 
-#else // !PUP_VM_H_INSIDE
-//mount.h
-
-struct _PupMount
-{
-	GObject parent;
-
-	PupClientVolume *holder;
-};
-
-typedef struct
-{
-	GObjectClass parent;
-
-} PupMountClass;
-
-//FILE_HEADER_SUBST:gobject_macro_gen PUP_MOUNT PupMount pup_mount pup
-
-#endif //PUP_VM_H_INSIDE
-
-//FILE_HEADER_END
-
-#ifndef PUP_VM_H_INSIDE
 G_DEFINE_DYNAMIC_TYPE_EXTENDED(PupMount, pup_mount, G_TYPE_OBJECT, 0, 
-                               G_IMPLEMENT_INTERFACE_DYNAMIC(G_TYPE_MOUNT, pup_mount_init_iface)
-                               );
-#else
-GType pup_mount_get_type(void);
-#endif
+                               G_IMPLEMENT_INTERFACE_DYNAMIC(G_TYPE_MOUNT, pup_mount_init_iface));
 
 //construction and destruction
 
@@ -41,18 +13,14 @@ static void pup_mount_class_init(PupMountClass *klass)
 	GObjectClass *basic_class = G_OBJECT_CLASS(klass);
 
 	basic_class->finalize = pup_mount_finalize;
-
-	
 }
 
 static void pup_mount_class_finalize(PupMountClass *klass)
 {
-	
 }
 
 static void pup_mount_init(PupMount *self)
 {
-
 }
 
 
@@ -195,15 +163,18 @@ void pup_mount_umount_w_operation(GMount *mount, GMountUnmountFlags flags,
 	PupMount *self = PUP_MOUNT(mount);
 	PupClientDevice *dev = PUP_CLIENT_DEVICE(self->holder);
 	pup_client_lock(dev);
-	pup_client_monitor_start_operation
-		(dev->monitor, dev->holder, "umount", NULL, mount_operation,
+
 #if GLIB_CHECK_VERSION(2, 46, 0)
-		 G_ASYNC_RESULT(g_task_new(self, cancellable, callback, user_data)), pup_mount_umount); // introduced in 2.36
+	GTask * task; // introduced in 2.36
+	task = g_task_new (self, cancellable, callback, user_data);
 #else
-		 // deprecated in 2.46
-		 G_ASYNC_RESULT(g_simple_async_result_new(G_OBJECT(self), callback, user_data,
-		                           pup_mount_umount)), NULL);
+	GSimpleAsyncResult * task; // deprecated in 2.46
+	task = g_simple_async_result_new (G_OBJECT(self), callback, user_data, pup_mount_umount);
 #endif
+
+	pup_client_monitor_start_operation (dev->monitor, dev->holder,
+	                                    "umount", NULL, mount_operation,
+	                                    task);
 	pup_client_unlock(dev);
 }
 
@@ -224,15 +195,18 @@ void pup_mount_eject_w_operation(GMount *mount, GMountUnmountFlags flags,
 	PupMount *self = PUP_MOUNT(mount);
 	PupClientDevice *dev = PUP_CLIENT_DEVICE(self->holder);
 	pup_client_lock(dev);
-	pup_client_monitor_start_operation
-		(dev->monitor, dev->holder, "eject", NULL, mount_operation,
+
 #if GLIB_CHECK_VERSION(2, 46, 0)
-		 G_ASYNC_RESULT(g_task_new(self, cancellable, callback, user_data)), pup_mount_umount); // introduced in 2.36
+	GTask * task; // introduced in 2.36
+	task = g_task_new (self, cancellable, callback, user_data);
 #else
-		 // deprecated in 2.46
-		 G_ASYNC_RESULT(g_simple_async_result_new(G_OBJECT(self), callback, user_data,
-		                           pup_mount_umount)), NULL);
+	GAsyncResult * task; // deprecated in 2.46
+	task = g_simple_async_result_new (G_OBJECT(self), callback, user_data, pup_mount_umount);
 #endif
+
+	pup_client_monitor_start_operation (dev->monitor, dev->holder,
+	                                    "eject", NULL, mount_operation,
+	                                    task);
 	pup_client_unlock(dev);
 }
 

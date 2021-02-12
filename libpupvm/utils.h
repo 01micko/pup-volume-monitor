@@ -1,14 +1,8 @@
-//utils.c or utils.h
 //Useful utility functions and macros
 
-#ifndef PUP_VM_H_INSIDE
-//utils.c
-#	include "common-includes.h"
-
-#else // !PUP_VM_H_INSIDE
 //utils.h
 
-#	define G_LIST_ITER(l, i) (i = l; i != NULL; i = i->next)
+#define G_LIST_ITER(l, i) (i = l; i != NULL; i = i->next)
 
 typedef struct
 {
@@ -16,11 +10,8 @@ typedef struct
 	gdouble target;
 } PSTimer;
 
-#	define PUP_STATIC static
+#define PUP_STATIC static
 
-#endif // PUP_VM_H_INSIDE
-
-/*Everything beyond this is automatically generated*/
 gboolean pstimer_is_time_remaining(PSTimer *timer);
 struct timeval *pstimer_get_remaining_time(PSTimer *timer,struct timeval *time_return);
 void pstimer_destroy(PSTimer *timer);

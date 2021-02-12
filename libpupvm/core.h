@@ -1,12 +1,4 @@
-//core.c or core.h
 //Library's central portion
-
-#ifndef PUP_VM_H_INSIDE
-//core.c
-#	include "common-includes.h"
-
-#else // !PUP_VM_H_INSIDE
-//core.h
 
 typedef struct
 {
@@ -73,18 +65,12 @@ typedef struct
 	guint hup_signal_id;
 } PupSockClass;
 
-//FILE_HEADER_SUBST:gobject_macro_gen PUP_SOCK PupSock pup_sock pup
-#define PUP_TYPE_SOCK (pup_sock_get_type())
-#define PUP_SOCK(ptr) \
-		(G_TYPE_CHECK_INSTANCE_CAST((ptr), PUP_TYPE_SOCK, PupSock))
-#define PUP_IS_SOCK(ptr) \
-		(G_TYPE_CHECK_INSTANCE_TYPE((ptr), PUP_TYPE_SOCK))
-#define PUP_SOCK_CLASS(ptr) \
-		(G_TYPE_CHECK_CLASS_CAST((ptr), PUP_TYPE_SOCK, PupSockClass))
-#define PUP_IS_SOCK_CLASS(ptr) \
-		(G_TYPE_CHECK_CLASS_TYPE((ptr), PUP_TYPE_SOCK))
-#define PUP_SOCK_GET_CLASS(ptr) \
-		(G_TYPE_INSTANCE_GET_CLASS((ptr), PUP_TYPE_SOCK, PupSockClass))
+#define PUP_TYPE_SOCK       (pup_sock_get_type())
+#define PUP_SOCK(ptr)       (G_TYPE_CHECK_INSTANCE_CAST((ptr), PUP_TYPE_SOCK, PupSock))
+#define PUP_IS_SOCK(ptr)    (G_TYPE_CHECK_INSTANCE_TYPE((ptr), PUP_TYPE_SOCK))
+#define PUP_SOCK_CLASS(ptr) (G_TYPE_CHECK_CLASS_CAST((ptr), PUP_TYPE_SOCK, PupSockClass))
+#define PUP_IS_SOCK_CLASS(ptr)  (G_TYPE_CHECK_CLASS_TYPE((ptr), PUP_TYPE_SOCK))
+#define PUP_SOCK_GET_CLASS(ptr) (G_TYPE_INSTANCE_GET_CLASS((ptr), PUP_TYPE_SOCK, PupSockClass))
 #define PUP_SOCK_NAME "PupSock"
 
 typedef struct
@@ -100,9 +86,6 @@ typedef gboolean (*pup_sock_common_callback_data)
 (PupSock *sock, gpointer cb_data, gpointer user_data);
 
 
-#endif // PUP_VM_H_INSIDE
-
-/*Everything beyond this is automatically generated*/
 void pup_sock_set_destroy_params(PupSock *sock,gboolean attempt_flush,gdouble timeout);
 guint pup_sock_add_to_g_main(PupSock *sock,GMainContext *context);
 void pup_sock_event_source_finalize(GSource *source);
@@ -114,9 +97,4 @@ PupSock *pup_sock_new_from_fd(int fd);
 void pup_sock_set_property(GObject *instance,guint property,const GValue *value,GParamSpec *pspec);
 void pup_sock_get_property(GObject *instance,guint property,GValue *value,GParamSpec *pspec);
 void pup_sock_finalize(GObject *instance);
-#if !(!defined(PUP_VM_H_INSIDE))
 GType pup_sock_get_type();
-#endif
-#if !defined(PUP_VM_H_INSIDE)
-G_DEFINE_TYPE(PupSock,pup_sock,G_TYPE_OBJECT);
-#endif

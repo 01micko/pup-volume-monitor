@@ -1,42 +1,10 @@
-//volume_monitor.c or volume_monitor.h
 //GVolumeMonitor class implementation: PupVolumeMonitor
 
-#ifndef PUP_VM_H_INSIDE
-//volume_monitor.c
-#	include "common.h"
+#include "common.h"
 
-#else // !PUP_VM_H_INSIDE
-//volume_monitor.h
+G_DEFINE_DYNAMIC_TYPE_EXTENDED (PupVolumeMonitor, pup_volume_monitor, G_TYPE_NATIVE_VOLUME_MONITOR, 0,
+	                            pup_volume_monitor_implement_extension_point());
 
-typedef struct
-{
-	GNativeVolumeMonitor parent;
-
-	PupClientMonitor *monitor;
-	guint reconnect_source_tag;
-
-	gboolean initialized;
-} PupVolumeMonitor;
-
-typedef struct
-{
-	GNativeVolumeMonitorClass parent;
-
-} PupVolumeMonitorClass;
-
-//FILE_HEADER_SUBST:gobject_macro_gen PUP_VOLUME_MONITOR PupVolumeMonitor pup_volume_monitor pup
-
-#endif // PUP_VM_H_INSIDE
-
-//FILE_HEADER_END
-
-#ifndef PUP_VM_H_INSIDE
-G_DEFINE_DYNAMIC_TYPE_EXTENDED
-	(PupVolumeMonitor, pup_volume_monitor, G_TYPE_NATIVE_VOLUME_MONITOR, 0,
-	 pup_volume_monitor_implement_extension_point());
-#else
-GType pup_volume_monitor_get_type();
-#endif
 
 //construction and destruction
 
@@ -250,15 +218,11 @@ gboolean pup_volume_monitor_generic_finish(GObject *object, GAsyncResult *result
                                            GError **error)
 {
 #if GLIB_CHECK_VERSION(2, 46, 0)
-	return (g_task_propagate_boolean(G_TASK(result), error));
+	return (g_task_propagate_boolean (G_TASK (result), error));
 #else
-	// g_simple_async... was deprecated in 2.46
 	gboolean res = TRUE;
-	if (g_simple_async_result_propagate_error(G_SIMPLE_ASYNC_RESULT(result),
-	                                          error))
-	{
+	if (g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (result), error))
 		res = FALSE;
-	}
 	return res;
 #endif
 }

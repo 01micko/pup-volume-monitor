@@ -1,118 +1,13 @@
-//pupvm-utils.c or pupvm-utils.h
 //Useful classes...
-
-#ifndef PUP_VM_H_INSIDE
 //pupvm-utils.c
-#	include "common-includes.h"
-#	include <sys/wait.h>
 
-#else // !PUP_VM_H_INSIDE
-//pupvm-utils.h
-
-//Utility
-
-#	define PUP_STR_NULL_IS_BLANK(str) ((str) ? (str) : "")
-
-//Data
-#	define PUP_VM_SOCK "/tmp/pup_volume_monitor_socket"
-#	define PUP_VM_UDEV_SOCK "@/puppy/pup-volume-monitor-events-dest"
-#	define PUP_VM_DEF_MNTPNT "/mnt"
-
-///\brief The prototype of the function passed to pup_queue_call_func().
-/**  \param instance Value of the _instance_ argument
-	 \param user_data Value of the _user_data_ argument
-	 */
-typedef void (*PupFunc) (gpointer instance, gpointer user_data);
-
-typedef struct 
-{
-	PupFunc func;
-	gpointer instance;
-	gpointer user_data;
-} PupFuncHook;
-
-typedef enum
-{
-	//Warning: Changing these values implies protocol change
-	PUP_TAG_INVALID = 0,
-	PUP_TAG_LISTEN = 1,
-	PUP_TAG_LIST = 2,
-	PUP_TAG_OPERATION = 3,
-	PUP_TAG_REPROBE_MOUNT = 4,
-	PUP_TAG_OPERATION_RETURN = 5,
-	PUP_TAG_OPERATION_PASSWORD = 6,
-	PUP_TAG_OPERATION_QUESTION = 7,
-	PUP_TAG_STOP = 8
-} PupTags;
-
-//Remote operation (for clients)
-typedef struct _PupRemoteOperation PupRemoteOperation;
-
-typedef void (*PupRemoteReturnCB) (PupRemoteOperation *operation,
-                                   gboolean success, guint error_code,
-                                   const gchar *detail);
-typedef void (*PupAskPasswordCB)  (PupRemoteOperation *operation,
-                                   const gchar *msg,
-                                   GAskPasswordFlags flags);
-typedef void (*PupAskQuestionCB)  (PupRemoteOperation *operation,
-                                   const gchar *question,
-                                   const gchar **choices);
-
-struct _PupRemoteOperation
-{
-	guint category;
-	gchar *sysname;
-	gchar *operation;
-	gchar *args;
-	PupConv *conv;
-	PupRemoteReturnCB return_cb;
-	PupAskPasswordCB passwd_cb;
-	PupAskQuestionCB question_cb;
-};
-
-#define pup_vm_nullify_struct(pointer, type) \
-pup_vm_nullify_struct_func(pointer, sizeof(type))
-
-//Icons
-///Icon string describing internal harddisk.
-#define PUP_ICON_HDD "themed_icon|harddrive|gtk-harddisk|drive-harddisk|gnome-dev-harddisk"
-///Icon string describing internal flash disk.
-#define PUP_ICON_FLASH "themed_icon|media-flash|gtk-harddisk|drive-harddisk|gnome-dev-harddisk"
-///Icon string describing USB flash drives.
-#define PUP_ICON_USBFLASH "themed_icon|gnome-dev-removable-usb" \
-	"|drive-removable-media" \
-	"|gtk-harddisk" \
-	"|drive-harddisk" \
-	"|gnome-dev-harddisk"
-///Icon string describing external USB harddisks.
-#define PUP_ICON_USBHDD "themed_icon|gnome-dev-harddisk-usb" \
-	"|drive-removable-media" \
-	"|gtk-harddisk" \
-	"|drive-harddisk" \
-	"|gnome-dev-harddisk"
-///Icon string describing a generic untyped volume
-#define PUP_ICON_GENERIC_VOLUME "themed_icon|gtk-harddisk"
-///Icon describing an (empty) optical drive
-#define PUP_ICON_OPTICAL_DRIVE "themed_icon|drive-optical"
-///Icon string describing CD-ROM disk
-#define PUP_ICON_CDROM "themed_icon|media-cdrom|media-optical"
-///Icon string describing CD-RW disk
-#define PUP_ICON_CDRW "themed_icon|media-cdrw|media-cdrom|media-optical"
-///Icon string describing an audio CD
-#define PUP_ICON_AUDIOCD "themed_icon|media-cdrom-audio|media-cdrom|media-optical"
-///Icon string describing DVD-ROM disk
-#define PUP_ICON_DVD "themed_icon|media-dvd|media-optical"
-///Icon string describing DVD+/-RW disk
-#define PUP_ICON_DVDRW "themed_icon|media-dvdrw|media-dvd|media-optical"
-
-#endif // PUP_VM_H_INSIDE
-
-//FILE_HEADER_END
+#include "common-includes.h"
+#include <sys/wait.h>
 
 //Filling structures with zeroes
 void pup_vm_nullify_struct_func(gpointer data, gsize len)
 {
-	int i;
+	gsize i;
 	for (i = 0; i < len; i++)
 		((gchar *) data)[i] = 0;
 }
@@ -142,7 +37,7 @@ gchar *pup_strrpl(const gchar *string, gchar **targets, gchar **substs)
 	PupStrrplStack *stack_end = NULL;
 
 	//Assertions
-	gint i, j, new_strlen;
+	gsize i, j, new_strlen;
 	if (! string) return NULL;
 
 	new_strlen = strlen(string);
@@ -634,7 +529,8 @@ typedef struct
 	gboolean success;
 } Launcher;
 
-static gboolean pup_vm_spawn_output_cb(GIOChannel *source, GIOCondition condition, 
+static gboolean      /* GIOFunc */
+pup_vm_spawn_output_cb (GIOChannel *source, GIOCondition condition, 
                                 Launcher *data)
 {
 	char buf[256];
@@ -655,7 +551,8 @@ static gboolean pup_vm_spawn_output_cb(GIOChannel *source, GIOCondition conditio
 	return TRUE;
 }
 
-static gboolean pup_vm_spawn_wait_cb(GPid pid, gint status, Launcher *data)
+static gboolean /* GChildWatchFunc */
+pup_vm_spawn_wait_cb (GPid pid, gint status, Launcher *data)
 {
 	data->exit_status = WEXITSTATUS(status);
 	g_main_loop_quit(data->loop);
@@ -688,22 +585,22 @@ gboolean pup_vm_spawn_cmd_sync(gchar **argv, gchar **envp,
 	                       g_io_channel_get_flags(data.stdout_fd) | G_IO_FLAG_NONBLOCK,
 	                       NULL);
 	out_src = g_io_create_watch(data.stdout_fd, G_IO_IN);
-	g_source_attach(out_src, data.ctx);
-	g_source_set_callback(out_src, (GSourceFunc) pup_vm_spawn_output_cb, &data,
-	                      NULL);
+	g_source_attach (out_src, data.ctx); //GIOFunc
+	g_source_set_callback (out_src, G_SOURCE_FUNC(pup_vm_spawn_output_cb), &data,
+	                       NULL);
 
 	data.stderr_fd = g_io_channel_unix_new(err_fd);
 	g_io_channel_set_flags(data.stderr_fd,
 	                       g_io_channel_get_flags(data.stderr_fd) | G_IO_FLAG_NONBLOCK,
 	                       NULL);
 	err_src = g_io_create_watch(data.stderr_fd, G_IO_IN);
-	g_source_attach(err_src, data.ctx);
-	g_source_set_callback(err_src, (GSourceFunc) pup_vm_spawn_output_cb, &data,
-	                      NULL);
+	g_source_attach (err_src, data.ctx); //GIOFunc
+	g_source_set_callback (err_src, G_SOURCE_FUNC(pup_vm_spawn_output_cb), &data,
+	                       NULL);
 
 	child_src = g_child_watch_source_new(pidof_child);
-	g_source_attach(child_src, data.ctx);
-	g_source_set_callback(child_src, (GSourceFunc) pup_vm_spawn_wait_cb, &data,
+	g_source_attach (child_src, data.ctx); //GChildWatchFunc
+	g_source_set_callback (child_src, G_SOURCE_FUNC(pup_vm_spawn_wait_cb), &data,
 	                      NULL);
 
 	data.success = TRUE;

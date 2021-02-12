@@ -1,11 +1,4 @@
-//protocol.c or protocol.h
 //Contains functions to help interpret binary data
-
-#ifndef PUP_VM_H_INSIDE
-//protocol.c
-#	include "common-includes.h"
-
-#else // !PUP_VM_H_INSIDE
 //protocol.h
 
 typedef struct
@@ -50,23 +43,20 @@ typedef gint (*PSDataIterFunc) (PSDataEncoder *encoder,
 typedef gpointer (*PSDataAddFunc) (gpointer data_structure,
                                    gpointer key, gpointer data);
 
-#	define ps_data_parser_parse_var(p, t) \
-*((t *) ps_data_parser_parse_next_fixed_block_noalloc(p, sizeof(t)))
+#define ps_data_parser_parse_var(p, t) \
+	*((t *) ps_data_parser_parse_next_fixed_block_noalloc(p, sizeof(t)))
 
-#	define ps_data_parser_parse_array(p, t, l) \
-(t *) ps_data_parser_parse_next_variable_block \
-(p, sizeof(t), l)
+#define ps_data_parser_parse_array(p, t, l) \
+	(t *) ps_data_parser_parse_next_variable_block (p, sizeof(t), l)
 
-#	define ps_data_encoder_add_val(e, v, t, f) \
-*((t *) ps_data_encoder_alloc_fixed_block(e, sizeof(t), f)) = v
+#define ps_data_encoder_add_val(e, v, t, f) \
+	*((t *) ps_data_encoder_alloc_fixed_block(e, sizeof(t), f)) = v
 
-#	define ps_data_encoder_add_array(e, a, t, l, f) \
-ps_data_encoder_add_variable_block \
-(e, (gpointer) a, (l) * sizeof(t), f)
+#define ps_data_encoder_add_array(e, a, t, l, f) \
+	ps_data_encoder_add_variable_block (e, (gpointer) a, (l) * sizeof(t), f)
 
-#endif // PUP_VM_H_INSIDE
 
-/*Everything beyond this is automatically generated*/
+
 void ps_data_encoder_destroy(PSDataEncoder *encoder);
 void ps_data_encoder_queue_send(PSDataEncoder *encoder,PupSock *sock);
 void ps_data_encoder_encode(PSDataEncoder *encoder,gpointer dest);

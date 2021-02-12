@@ -1,8 +1,12 @@
 #!/bin/sh
 
-[ -f /etc/DISTRO_SPECS ] && PUPPY_LINUX=yes
+#PDEBUG=1
 
-if [ "$PUPPY_LINUX" = "yes" ] ; then
+if [ -f /etc/rc.d/PUPSTATE ] ; then
+	PLINUX=yes
+fi
+
+if [ "$PLINUX" = "yes" ] ; then
 	[ "`whoami`" != "root" ] && exec sudo -A ${0} ${@}
 fi
 
@@ -12,20 +16,30 @@ if pup-volume-monitor-admin --list-all &> /dev/null; then
 	exit 2
 fi
 
-case $1 in -d|-debug)
-		export G_MESSAGES_DEBUG=all
-		while true; do
-			pup-volume-monitor 2>&1 > /tmp/pup-volume-monitor.log
-			sleep 5
-		done 
-		;;
-esac
+case $1 in -d|-debug) PDEBUG=1 ;; esac
 
-if [ "$PUPPY_LINUX" = "yes" ] ; then
+if [ "$PDEBUG" = "1" ] ; then
+	export G_MESSAGES_DEBUG=all
+	while true; do
+		pup-volume-monitor >/tmp/pup-volume-monitor.log 2>&1
+		sleep 5
+	done 
+fi
+
+if [ "$PLINUX" = "yes" ] ; then
 	pup-volume-monitor &
-	if ! grep -q root /etc/inittab ; then
-		sleep 4
-		if [ -e /tmp/pup_volume_monitor_socket ] ; then
+	# allow non-root user to mount drives
+	if grep -q mingetty /etc/inittab ; then
+		# old
+		if ! grep -q root /etc/inittab ; then
+			sleep 4
+			if [ -e /tmp/pup_volume_monitor_socket ] ; then
+				chmod 777 /tmp/pup_volume_monitor_socket 
+			fi
+		fi
+	elif [ -f /etc/plogin ] ; then
+		read user < /etc/plogin
+		if [ "$user" = "root" ] ; then
 			chmod 777 /tmp/pup_volume_monitor_socket 
 		fi
 	fi

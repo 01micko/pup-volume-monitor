@@ -2,14 +2,14 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.50])
-AC_INIT([pup-volume-monitor],[0.1.17],[BUG-REPORT-ADDRESS])
+AC_INIT([pup-volume-monitor],[0.2w],[BUG-REPORT-ADDRESS])
 AC_CONFIG_SRCDIR([libpupvm/pupvm-plugin.h])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([-Wall foreign silent-rules])
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 AC_CONFIG_MACRO_DIR([m4])
-AM_MAINTAINER_MODE
-AM_PROG_AR([ar])
+m4_ifdef([AM_MAINTAINER_MODE],[AM_MAINTAINER_MODE])
+m4_ifdef([AM_PROG_AR],[AM_PROG_AR([ar])])
 LT_INIT
 
 # Checks for programs.
@@ -36,6 +36,10 @@ AC_CHECK_HEADERS([fcntl.h stdlib.h string.h sys/socket.h unistd.h])
 # Checks for library functions.
 AC_CHECK_FUNCS([floor select socket])
 
+case "$CC" in
+  gcc*) CPPFLAGS="$CPPFLAGS -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers" ;;
+  *) ;;
+esac
 
 AC_CONFIG_FILES([Makefile
                  libpupvm/Makefile

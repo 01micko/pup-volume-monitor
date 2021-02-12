@@ -1,41 +1,9 @@
-//drive.c or drive.h
 //GDrive class implementation: PupClientDrive
 
-#ifndef PUP_VM_H_INSIDE
-//drive.c
-#	include "common.h"
-
-#else // !PUP_VM_H_INSIDE
-//drive.h
-
-typedef struct
-{
-	PupClientDevice parent;
-
-} PupClientDrive;
-
-typedef struct
-{
-	PupClientDeviceClass parent;
-
-} PupClientDriveClass;
-
-//FILE_HEADER_SUBST:gobject_macro_gen PUP_CLIENT_DRIVE PupClientDrive pup_client_drive pup
-
-#endif //PUP_VM_H_INSIDE
-
-//FILE_HEADER_END
-
-
-
-#ifndef PUP_VM_H_INSIDE
+#include "common.h"
 
 G_DEFINE_DYNAMIC_TYPE_EXTENDED(PupClientDrive, pup_client_drive, PUP_TYPE_CLIENT_DEVICE, 0, 
-                               G_IMPLEMENT_INTERFACE_DYNAMIC(G_TYPE_DRIVE, pup_client_drive_init_iface)
-                               );
-#else
-GType pup_client_drive_get_type(void);
-#endif
+                               G_IMPLEMENT_INTERFACE_DYNAMIC(G_TYPE_DRIVE, pup_client_drive_init_iface));
 
 //construction and destruction
 
@@ -213,15 +181,18 @@ void pup_client_drive_eject_w_operation(GDrive *drive,
 {
 	PupClientDevice *self = PUP_CLIENT_DEVICE(drive);
 	pup_client_lock(self);
-	pup_client_monitor_start_operation
-		(self->monitor, self->holder, "eject", NULL, mount_operation,
+
 #if GLIB_CHECK_VERSION(2, 46, 0)
-		 G_ASYNC_RESULT(g_task_new(self, cancellable, callback, user_data)), pup_client_volume_mount); // introduced in 2.36
+	GTask * task; // introduced in 2.36
+	task = g_task_new (self, cancellable, callback, user_data);
 #else
-		 // deprecated in 2.46
-		 G_ASYNC_RESULT(g_simple_async_result_new(G_OBJECT(self), callback, user_data,
-		                           pup_client_volume_mount)), NULL);
+	GAsyncResult * task; // deprecated in 2.46
+	task = g_simple_async_result_new (G_OBJECT(self), callback, user_data, pup_client_volume_mount);
 #endif
+
+	pup_client_monitor_start_operation (self->monitor, self->holder,
+	                                    "eject", NULL, mount_operation,
+	                                    task);
 	pup_client_unlock(self);
 }
 

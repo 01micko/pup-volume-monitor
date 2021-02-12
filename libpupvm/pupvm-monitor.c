@@ -1,70 +1,11 @@
-//pupvm-monitor.c or pupvm-monitor.h
 //The volume monitor, server side
 
-#ifndef PUP_VM_H_INSIDE
-//pupvm-monitor.c
-#	include "common-includes.h"
+#include "common-includes.h"
 
-#else // !PUP_VM_H_INSIDE
-//pupvm-monitor.h
+G_DEFINE_TYPE(PupVMMonitor, pup_vm_monitor, G_TYPE_OBJECT);
 
-//icons
-typedef struct
-{
-	gchar *devnode;
-	gchar *mntpnt;
-	guint flags;
-} PupMntEntry;
+static PupVMMonitor *stored_monitor = NULL;
 
-struct _PupVMMonitor
-{
-	GObject parent;
-
-	GHashTable *drives;
-	GHashTable *volumes;
-
-	gboolean udev_cancel;
-
-	GHashTable *mounts;
-	gchar *mtab_file;
-
-#if GLIB_CHECK_VERSION(2, 32, 0)
-	GRecMutex lock;
-#else
-	GStaticRecMutex lock;
-#endif
-};
-
-typedef struct 
-{
-	GObjectClass parent;
-	//Device management
-	void (*device_event_cb) (PupVMMonitor *monitor, PupDevice *dev,
-	                         guint event, const gchar *detail_if_any);
-	//Udev events
-	void (*udev_event) (PupVMMonitor *monitor, struct udev_device *dev);
-	//Signals
-	guint udev_signal_id;
-	guint udev_after_signal_id;
-	guint device_event_signal_id;
-	guint mounts_check_signal_id;
-	//icons
-} PupVMMonitorClass;
-
-typedef void (*PupUdevEventCB) (PupVMMonitor *monitor,
-                                struct udev_device *dev, gpointer user_data);
-
-typedef void (*PupDeviceEventCB) (PupVMMonitor *monitor,
-                                  PupDevice *dev,
-                                  guint action,
-                                  const gchar *detail,
-                                  gpointer user_data);
-
-//FILE_HEADER_SUBST:gobject_macro_gen PUP_VM_MONITOR PupVMMonitor pup_vm_monitor pup
-
-#endif // PUP_VM_H_INSIDE
-
-//FILE_HEADER_END
 
 void pup_mnt_entry_free(PupMntEntry *entry)
 {
@@ -73,16 +14,6 @@ void pup_mnt_entry_free(PupMntEntry *entry)
 	g_free(entry->mntpnt);
 	g_slice_free(PupMntEntry, entry);
 }
-
-
-
-#ifndef PUP_VM_H_INSIDE
-G_DEFINE_TYPE(PupVMMonitor, pup_vm_monitor, G_TYPE_OBJECT);
-#else
-GType pup_vm_monitor_get_type();
-#endif
-
-static PupVMMonitor *stored_monitor = NULL;
 
 static void pup_vm_monitor_class_init(PupVMMonitorClass *klass)
 {	
@@ -115,11 +46,7 @@ static void pup_vm_monitor_init(PupVMMonitor *self)
 	self->drives = g_hash_table_new(g_str_hash, g_str_equal);
 	self->volumes = g_hash_table_new(g_str_hash, g_str_equal);
 
-#if GLIB_CHECK_VERSION(2, 32, 0)
 	g_rec_mutex_init(&(self->lock));
-#else
-	g_static_rec_mutex_init(&(self->lock));
-#endif
 
 	//Only this much is required by clients
 	if (pup_vm_is_client) return;
@@ -153,20 +80,12 @@ PupVMMonitor *pup_vm_monitor_get()
 
 void pup_vm_monitor_lock(PupVMMonitor *self)
 {
-#if GLIB_CHECK_VERSION(2, 32, 0)
 	g_rec_mutex_lock(&(self->lock));
-#else
-	g_static_rec_mutex_lock(&(self->lock));
-#endif
 }
 
 void pup_vm_monitor_unlock(PupVMMonitor *self)
 {
-#if GLIB_CHECK_VERSION(2, 32, 0)
 	g_rec_mutex_unlock(&(self->lock));
-#else
-	g_static_rec_mutex_unlock(&(self->lock));
-#endif
 }
 
 GHashTable *pup_vm_monitor_get_hash_table(PupVMMonitor *self, PupDevice *dev)

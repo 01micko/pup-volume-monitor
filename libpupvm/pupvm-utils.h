@@ -1,22 +1,14 @@
-//pupvm-utils.c or pupvm-utils.h
 //Useful classes...
-
-#ifndef PUP_VM_H_INSIDE
-//pupvm-utils.c
-#	include "common-includes.h"
-#	include <sys/wait.h>
-
-#else // !PUP_VM_H_INSIDE
 //pupvm-utils.h
 
 //Utility
 
-#	define PUP_STR_NULL_IS_BLANK(str) ((str) ? (str) : "")
+#define PUP_STR_NULL_IS_BLANK(str) ((str) ? (str) : "")
 
 //Data
-#	define PUP_VM_SOCK "/tmp/pup_volume_monitor_socket"
-#	define PUP_VM_UDEV_SOCK "@/puppy/pup-volume-monitor-events-dest"
-#	define PUP_VM_DEF_MNTPNT "/mnt"
+#define PUP_VM_SOCK "/tmp/pup_volume_monitor_socket"
+#define PUP_VM_UDEV_SOCK "@/puppy/pup-volume-monitor-events-dest"
+#define PUP_VM_DEF_MNTPNT "/mnt"
 
 ///\brief The prototype of the function passed to pup_queue_call_func().
 /**  \param instance Value of the _instance_ argument
@@ -105,9 +97,7 @@ pup_vm_nullify_struct_func(pointer, sizeof(type))
 ///Icon string describing DVD+/-RW disk
 #define PUP_ICON_DVDRW "themed_icon|media-dvdrw|media-dvd|media-optical"
 
-#endif // PUP_VM_H_INSIDE
 
-/*Everything beyond this is automatically generated*/
 gboolean pup_vm_launch_script_v(gint *exit_status,gchar **output,GError **error,const gchar *script,...);
 gboolean pup_vm_launch_script_cmdline(const gchar *cmdline,gint *exit_status,gchar **output,GError **error);
 gboolean pup_vm_spawn_cmd_sync(gchar **argv,gchar **envp,gint *exit_status,gchar **output,GError **error);

@@ -1,77 +1,19 @@
-//client-monitor.c or client-monitor.h
 //Connecting to server, getting jobs done through server, etc.
 
-#ifndef PUP_VM_H_INSIDE
-//client-monitor.c
 #include "common.h"
 
-#else // !PUP_VM_H_INSIDE
-//client-monitor.h
+G_DEFINE_DYNAMIC_TYPE(PupClientMonitor, pup_client_monitor, PUP_TYPE_VM_MONITOR);
+G_DEFINE_DYNAMIC_TYPE(PupClientDevice, pup_client_device, G_TYPE_OBJECT);
 
-typedef struct
-{
-	PupVMMonitor parent;
-
-	PupConvMgr *cmgr;
-	PupConv *event_conv;
-	gboolean initialized;
-
-	GType volume_type;
-	GType drive_type;
-	GObject *volume_monitor;
-} PupClientMonitor;
-
-typedef struct 
-{
-	PupVMMonitorClass parent;
-
-	guint hup_signal_id;
-} PupClientMonitorClass;
-
-//FILE_HEADER_SUBST:gobject_macro_gen PUP_CLIENT_MONITOR PupClientMonitor pup_client_monitor pup
-
-typedef struct
-{
-	GObject parent;
-
-	PupDevice *holder;
-	PupClientMonitor *monitor;
-	GObject *volume_monitor;
-	gpointer iface;
-} PupClientDevice;
-
-typedef void (*PupClientDeviceSetup) (PupClientDevice *client_device,
-                                      PupDevice *holder);
-typedef struct
-{
-	GObjectClass parent;
-
-	PupClientDeviceSetup setup_func;
-} PupClientDeviceClass;
-
-//FILE_HEADER_SUBST:gobject_macro_gen PUP_CLIENT_DEVICE PupClientDevice pup_client_device pup
-
-typedef struct 
-{
-	PupRemoteOperation parent;
-
-	PupDevice *dev;
-	GMountOperation *mount_operation;
-	GAsyncResult *result; // GSimpleAsyncResult, GTask (2.46+) - https://developer.gnome.org/gio/stable/GAsyncResult.html
-	guint current_query;
-} PupGIOOperation;
-
-#endif //PUP_VM_H_INSIDE
-
-//FILE_HEADER_END
+static void pup_client_monitor_user_respond_cb (GMountOperation *mount_operation,GMountOperationResult abort,PupGIOOperation *gio_operation);
+static void pup_client_monitor_finalize (GObject *instance);
+static void pup_client_monitor_device_event_cb (PupVMMonitor *monitor,PupDevice *dev,guint event,const gchar *detail);
+static void pup_client_monitor_get_devices_cb (PupConv *conv,PSDataParser *rcvd_data,gboolean is_new,PupClientMonitor *monitor,gpointer dummy);
+static void pup_client_monitor_disconnect_cb (PupSock *sock,PupClientMonitor *self);
+static void pup_client_monitor_svr_event_cb (PupConv *conv,PSDataParser *rcvd_data,gboolean is_new,PupClientMonitor *monitor,gpointer dummy);
 
 //Client side monitor
 
-#ifndef PUP_VM_H_INSIDE
-G_DEFINE_DYNAMIC_TYPE(PupClientMonitor, pup_client_monitor, PUP_TYPE_VM_MONITOR);
-#else
-GType pup_client_monitor_get_type();
-#endif
 
 void pup_client_monitor_register(GIOModule *module)
 {
@@ -103,7 +45,7 @@ static void pup_client_monitor_init(PupClientMonitor *self)
 	self->drive_type = PUP_TYPE_CLIENT_DRIVE;
 }
 
-void pup_client_monitor_finalize(GObject *instance)
+static void pup_client_monitor_finalize(GObject *instance)
 {
 	PupClientMonitor *self = PUP_CLIENT_MONITOR(instance);
 	//Disconnect from server, this statement is enough
@@ -112,7 +54,8 @@ void pup_client_monitor_finalize(GObject *instance)
 	G_OBJECT_CLASS(pup_client_monitor_parent_class)->finalize(instance);
 }
 
-void pup_client_monitor_get_devices_cb(PupConv *conv, PSDataParser *rcvd_data,
+static void
+pup_client_monitor_get_devices_cb(PupConv *conv, PSDataParser *rcvd_data,
                                        gboolean is_new, PupClientMonitor *monitor,
                                        gpointer dummy)
 {
@@ -136,7 +79,8 @@ void pup_client_monitor_get_devices_cb(PupConv *conv, PSDataParser *rcvd_data,
 	
 }
 
-void pup_client_monitor_disconnect_cb(PupSock *sock, PupClientMonitor *self)
+static void
+pup_client_monitor_disconnect_cb (PupSock *sock, PupClientMonitor *self)
 {
 	if (self->cmgr) g_object_unref(self->cmgr);
 	self->cmgr = NULL;
@@ -210,7 +154,8 @@ gboolean pup_client_monitor_connect(PupClientMonitor *self)
 	return TRUE;
 }
 
-void pup_client_monitor_svr_event_cb(PupConv *conv, PSDataParser *rcvd_data,
+static void
+pup_client_monitor_svr_event_cb(PupConv *conv, PSDataParser *rcvd_data,
                                      gboolean is_new, PupClientMonitor *monitor,
                                      gpointer dummy)
 {
@@ -247,7 +192,8 @@ void pup_client_monitor_svr_event_cb(PupConv *conv, PSDataParser *rcvd_data,
 	pup_vm_event_free_data(&event, TRUE);
 }
 
-void pup_client_monitor_device_event_cb(PupVMMonitor *monitor, 
+static void
+pup_client_monitor_device_event_cb(PupVMMonitor *monitor, 
                                         PupDevice *dev, guint event,
                                         const gchar *detail)
 {
@@ -261,12 +207,13 @@ void pup_client_monitor_start_operation(PupClientMonitor *monitor,
                                         const gchar *oper_name,
                                         const gchar *args,
                                         GMountOperation *mount_operation,
-										GAsyncResult *result,
-										gpointer async_func) //null if not using GTask
+#if GLIB_CHECK_VERSION(2, 46, 0)
+										GTask *result)
+#else
+										GSimpleAsyncResult *result)
+#endif	
+
 {
-#if GLIB_CHECK_VERSION(2, 46, 0) //otherwise an implicit declaration occurs (in old glib versions)
-	if (async_func != NULL) g_task_set_source_tag(G_TASK(result), async_func);
-#endif
 	//Create new operation
 	PupGIOOperation *operation = g_new0(PupGIOOperation, 1);
 	//Fill in the structure
@@ -298,19 +245,22 @@ void pup_client_monitor_operation_return_cb (PupRemoteOperation *operation,
 {
 	PupGIOOperation *gio_operation = (PupGIOOperation *) operation;
 #if GLIB_CHECK_VERSION(2, 46, 0)
-	if (success) g_task_return_boolean(G_TASK(gio_operation->result), TRUE);
-	else g_task_return_new_error(G_TASK(gio_operation->result), G_IO_ERROR, error_code, "%s", detail);
+	if (success)
+		g_task_return_boolean (gio_operation->result, TRUE);
+	else
+		g_task_return_new_error (gio_operation->result, G_IO_ERROR, error_code, "%s", detail);
 #else
 	//g_simple_async_* was deprecated in 2.46
-	if (success) g_simple_async_result_set_op_res_gboolean(G_SIMPLE_ASYNC_RESULT(gio_operation->result), TRUE);
+	if (success)
+		g_simple_async_result_set_op_res_gboolean (gio_operation->result, TRUE);
 	else
 	{
-		g_simple_async_result_set_error(G_SIMPLE_ASYNC_RESULT(gio_operation->result),
+		g_simple_async_result_set_error(gio_operation->result,
 		                                G_IO_ERROR,
 		                                error_code,
 		                                "%s", detail);
 	}
-	g_simple_async_result_complete(G_SIMPLE_ASYNC_RESULT(gio_operation->result));
+	g_simple_async_result_complete (gio_operation->result);
 #endif
 	pup_device_release(gio_operation->dev);
 }
@@ -343,9 +293,10 @@ void pup_client_monitor_ask_question_cb (PupRemoteOperation *operation,
 	                      "ask-question", question, choices);
 }
 
-void pup_client_monitor_user_respond_cb(GMountOperation *mount_operation,
-                                        GMountOperationResult abort,
-                                        PupGIOOperation *gio_operation)
+static void
+pup_client_monitor_user_respond_cb(GMountOperation *mount_operation,
+                                   GMountOperationResult abort,
+                                   PupGIOOperation *gio_operation)
 {
 	if (abort == G_MOUNT_OPERATION_ABORTED)
 		pup_remote_operation_abort(gio_operation->parent.conv);
@@ -370,12 +321,8 @@ void pup_client_monitor_user_respond_cb(GMountOperation *mount_operation,
 	}
 }
 
-//Client side device
-#ifndef PUP_VM_H_INSIDE
-G_DEFINE_DYNAMIC_TYPE(PupClientDevice, pup_client_device, G_TYPE_OBJECT);
-#else
-GType pup_client_device_get_type();
-#endif
+// ============================================================================
+// Client side device
 
 GQuark pup_client_device_quark()
 {

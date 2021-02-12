@@ -1,74 +1,6 @@
-//protocol.c or protocol.h
 //Contains functions to help interpret binary data
 
-#ifndef PUP_VM_H_INSIDE
-//protocol.c
-#	include "common-includes.h"
-
-#else // !PUP_VM_H_INSIDE
-//protocol.h
-
-typedef struct
-{
-	PupSockData data;
-	gsize rw_ptr;
-	gboolean free_on_unref;
-} PSDataParser;
-
-typedef struct 
-{
-	GQueue *data_queue;
-	gsize len;
-} PSDataEncoder;
-
-typedef struct
-{
-	gint8 *data;
-	gsize len;
-	gint flags;
-} PSEncodeData;
-
-typedef enum 
-{
-	PS_DATA_ENCODER_ALLOC = 1 << 0,
-	PS_DATA_ENCODER_PREPEND = 1 << 1,
-	PS_DATA_ENCODER_FREE = 1 << 2,
-	PS_DATA_ENCODER_IS_ENCODER = 1 << 3
-} PSEncodeDataOptions;
-
-typedef void (*PSDataEncodeFunc) (PSDataEncoder *encoder,
-                                  gpointer data, gpointer user_data);
-
-typedef gboolean (*PSDataParseFunc) (PSDataParser *parser,
-                                     gpointer *key_return, gpointer *data_return,
-                                     gpointer user_data);
-
-typedef gint (*PSDataIterFunc) (PSDataEncoder *encoder, 
-                                gpointer data_structure, PSDataEncodeFunc func,
-                                gpointer user_data);
-
-typedef gpointer (*PSDataAddFunc) (gpointer data_structure,
-                                   gpointer key, gpointer data);
-
-#	define ps_data_parser_parse_var(p, t) \
-*((t *) ps_data_parser_parse_next_fixed_block_noalloc(p, sizeof(t)))
-
-#	define ps_data_parser_parse_array(p, t, l) \
-(t *) ps_data_parser_parse_next_variable_block \
-(p, sizeof(t), l)
-
-#	define ps_data_encoder_add_val(e, v, t, f) \
-*((t *) ps_data_encoder_alloc_fixed_block(e, sizeof(t), f)) = v
-
-#	define ps_data_encoder_add_array(e, a, t, l, f) \
-ps_data_encoder_add_variable_block \
-(e, (gpointer) a, (l) * sizeof(t), f)
-
-#endif // PUP_VM_H_INSIDE
-
-//FILE_HEADER_END
-
-
+#include "common-includes.h"
 
 PSDataParser *ps_data_parser_new(gpointer data, gsize len,
                                  gboolean free_data_on_destroy)
@@ -173,7 +105,7 @@ gint ps_data_parser_parse_complex_array(PSDataParser *parser,
 	PupSockLen *num_elements = ps_data_parser_parse_next_fixed_block_noalloc
 		(parser, PUPSOCK_LEN_SIZE);
 	g_return_val_if_fail(num_elements, -1);
-	gint i;
+	gsize i;
 
 	for (i = 0; i < *num_elements; i++)
 	{
@@ -392,7 +324,7 @@ void ps_data_encoder_encode(PSDataEncoder *encoder, gpointer dest)
 			ps_data_encoder_encode((PSDataEncoder *) onedata->data,
 			                       &(retval[rw_ptr]));
 		else
-			g_memmove(&(retval[rw_ptr]), onedata->data, onedata->len);
+			memmove (&(retval[rw_ptr]), onedata->data, onedata->len);
 		rw_ptr += ((PSEncodeData *) iter->data)->len;
 	}
 
@@ -404,7 +336,7 @@ void ps_data_encoder_queue_send(PSDataEncoder *encoder, PupSock *sock)
 		(encoder->len + PUPSOCK_LEN_SIZE);
 	//Copy the size of the data
 	PupSockLen len = (PupSockLen) encoder->len;
-	g_memmove(buffer->data, (gpointer) &len, PUPSOCK_LEN_SIZE);
+	memmove (buffer->data, (gpointer) &len, PUPSOCK_LEN_SIZE);
 	//Copy the data
 	ps_data_encoder_encode(encoder, &(buffer->data[PUPSOCK_LEN_SIZE]));
 	pup_sock_queue_buffer(sock, buffer);

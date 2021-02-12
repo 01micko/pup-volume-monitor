@@ -10,10 +10,10 @@
 #define PUP_VM_H
 
 #include <gio/gio.h>
-
 #include <libudev.h>
-
 #include <sys/socket.h>
+
+#include "glib-compat.h"
 
 G_BEGIN_DECLS
 

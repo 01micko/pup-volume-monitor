@@ -1,20 +1,7 @@
-//socket.c or socket.h
 //Contains functions to manage socket connections
-
-#ifndef PUP_VM_H_INSIDE
 //socket.c
-#	include "common-includes.h"
 
-#else // !PUP_VM_H_INSIDE
-//socket.h
-typedef gboolean (*PupSockAcceptCB) (PupSock *sock,
-                                     PupSock *new_client,
-                                     gpointer user_data);
-
-#endif // PUP_VM_H_INSIDE
-
-//FILE_HEADER_END
-
+#include "common-includes.h"
 
 void pup_sock_setup_as_local_server(PupSock *sock, const char *address,
                                     GError **error)
